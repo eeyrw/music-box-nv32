@@ -52,8 +52,8 @@
 .equ  WAVETABLE_CELESTA_C6_ATTACK_LEN, 838
 .equ  WAVETABLE_CELESTA_C6_LOOP_LEN, 520
 
-.equ TIM3_CCR2,0x40000438
-.equ TIM3_CCR3,0x4000043C
+.equ PWM_OUT1,0x40000438
+.equ PWM_OUT2,0x4000043C
 
 .func SynthAsm
 SynthAsm:
@@ -104,6 +104,7 @@ ldr r5,=#pMixOut
 adds r5,r5,pSoundUnit
 str mixOut,[r5]
 
+@ mixOut /=1<<6, 2^(10-1)<= mixOut <=2^(10-1)-1
 asrs mixOut,mixOut,#6
 ldr r5,=#-512
 cmp mixOut,r5
@@ -114,12 +115,13 @@ cmp mixOut,r5
 ble saturateEnd
 movs mixOut,r5
 saturateEnd:
-@ ssat mixOut,#10,mixOut,asrs #6 @ mixOut /=1<<16, 2^(9-1)<= mixOut <=2^(9-1)-1
+
+@ mixOut: [-512,511] -> [0,1023]
 ldr r5,=#512
 adds mixOut,mixOut,r5
-ldr r5,=#TIM3_CCR2
+ldr r5,=#PWM_OUT1
 strh mixOut,[r5]
-ldr r5,=#TIM3_CCR3
+ldr r5,=#PWM_OUT2
 strh mixOut,[r5]
 pop {r1-r2,r4-r7,pc}
 .endfunc
