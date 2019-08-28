@@ -55,18 +55,20 @@ void SynthC(Synthesizer* synth)
 
     for(uint32_t i=0;i<POLY_NUM;i++)
     {
-		pWaveTable=(int16_t*)soundUnits[i].waveTableAddress;
-		waveTablePosInt= (soundUnits[i].wavetablePos)>>8;
-        soundUnits[i].val=((int32_t)soundUnits[i].envelopeLevel)*pWaveTable[waveTablePosInt]/256;
-        soundUnits[i].sampleVal=pWaveTable[waveTablePosInt];
-		uint32_t waveTablePos=soundUnits[i].increment+
-                             soundUnits[i].wavetablePos;
+		if(soundUnits[i].envelopeLevel!=0)
+		{
+			pWaveTable=(int16_t*)soundUnits[i].waveTableAddress;
+			waveTablePosInt= (soundUnits[i].wavetablePos)>>8;
+			soundUnits[i].val=((int32_t)soundUnits[i].envelopeLevel)*pWaveTable[waveTablePosInt]>>8;
+			soundUnits[i].sampleVal=pWaveTable[waveTablePosInt];
+			uint32_t waveTablePos=soundUnits[i].increment+
+								soundUnits[i].wavetablePos;
 
-        waveTablePosInt= waveTablePos>>8;
-        if(waveTablePosInt>=soundUnits[i].waveTableLen)
-           waveTablePosInt-=soundUnits[i].waveTableLoopLen;
-        soundUnits[i].wavetablePos= waveTablePosInt<<8|(0xFF&waveTablePos);
-        synth->mixOut+=soundUnits[i].val;
+			if(waveTablePos>=soundUnits[i].waveTableLen<<8)
+			waveTablePos-=soundUnits[i].waveTableLoopLen<<8;
+			soundUnits[i].wavetablePos= waveTablePos;
+			synth->mixOut+=soundUnits[i].val;
+		}
     }
 }
 

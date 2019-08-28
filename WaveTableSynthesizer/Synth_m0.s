@@ -40,7 +40,7 @@
 
 
 .equ ENVELOP_LEN,256
-.equ POLY_NUM,32
+.equ POLY_NUM,24
 .equ pMixOut,SoundUnitSize*POLY_NUM
 .equ pLastSoundUnit,pMixOut+4
 
@@ -52,8 +52,8 @@
 .equ  WAVETABLE_CELESTA_C6_ATTACK_LEN, 838
 .equ  WAVETABLE_CELESTA_C6_LOOP_LEN, 520
 
-.equ PWM_OUT1,0x40000438
-.equ PWM_OUT2,0x4000043C
+.equ PWM_OUT1,0x4003A010
+.equ PWM_OUT2,0x4003A018
 
 .func SynthAsm
 SynthAsm:
@@ -95,8 +95,8 @@ loopSynth:
     str r6,[pSoundUnit,#pWavetablePos]
 loopSynthEnd:
 
-subs loopIndex,loopIndex,#1 @ set n = n-1
 adds pSoundUnit,pSoundUnit,#SoundUnitSize
+subs loopIndex,loopIndex,#1 @ set n = n-1
 bne loopSynth
 movs pSoundUnit,r0
 
@@ -105,19 +105,19 @@ adds r5,r5,pSoundUnit
 str mixOut,[r5]
 
 @ mixOut /=1<<6, 2^(10-1)<= mixOut <=2^(10-1)-1
-asrs mixOut,mixOut,#6
-ldr r5,=#-512
+asrs mixOut,mixOut,#8
+ldr r5,=#-128
 cmp mixOut,r5
 bge saturateEnd
 movs mixOut,r5
-ldr r5,=#511
+ldr r5,=#127
 cmp mixOut,r5
 ble saturateEnd
 movs mixOut,r5
 saturateEnd:
 
 @ mixOut: [-512,511] -> [0,1023]
-ldr r5,=#512
+ldr r5,=#128
 adds mixOut,mixOut,r5
 ldr r5,=#PWM_OUT1
 strh mixOut,[r5]
@@ -161,8 +161,8 @@ loopGenDecayEnvlope:
     adds r5,r5,#1
     str r5,[pSoundUnitGenEnv,#pEnvelopePos]
     conditionEnd:
+adds pSoundUnitGenEnv,pSoundUnitGenEnv,#SoundUnitSize    
 subs loopIndexGenEnv,loopIndexGenEnv,#1 @ set n = n-1
-adds pSoundUnitGenEnv,pSoundUnitGenEnv,#SoundUnitSize
 bne loopGenDecayEnvlope
 pop {r1-r2,r4-r7,pc}
 .endfunc

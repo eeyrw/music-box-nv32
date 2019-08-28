@@ -156,7 +156,7 @@ void TestSynth(void)
         if(SynthParamterCompare(&synthesizerC,&synthesizerASM)>0)
         errorTimes++;
 
-        if(errorTimes>6)
+        if(errorTimes>2)
         break;
     }
 }
