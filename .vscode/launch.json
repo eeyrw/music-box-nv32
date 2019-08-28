@@ -6,7 +6,7 @@
             "request": "launch",
             "servertype": "jlink",
             "cwd": "${workspaceRoot}",
-            "executable": "./nv32-gcc-example.elf",
+            "executable": "./music-box-nv32.elf",
             "name": "Debug (J-Link)",
             "device": "NV32F100",
             "interface": "swd",
