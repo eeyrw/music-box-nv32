@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define POLY_NUM 24
+#define POLY_NUM 20
 
 typedef struct _SoundUnit
 {

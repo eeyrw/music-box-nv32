@@ -29,9 +29,11 @@ void TestSynth(void);
 
 void PIT_Task(void)
 {
-
+        FGPIOB->PSOR=GPIO_PTE7_MASK;
         Player32kProc(&mPlayer);
         //GPIO_Toggle(GPIOB, GPIO_PTE7_MASK);
+        FGPIOB->PCOR=GPIO_PTE7_MASK;
+
   
 }
 

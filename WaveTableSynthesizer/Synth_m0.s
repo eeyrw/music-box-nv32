@@ -40,7 +40,7 @@
 
 
 .equ ENVELOP_LEN,256
-.equ POLY_NUM,24
+.equ POLY_NUM,20
 .equ pMixOut,SoundUnitSize*POLY_NUM
 .equ pLastSoundUnit,pMixOut+4
 
@@ -75,10 +75,10 @@ loopSynth:
     lsrs r6,r6,#8 @wavetablePos /= 256
     lsls r6,r6,#1 @wavetablePos *= 2
     ldrsh r6,[r5,r6] @ Load signed 16bit sample to r6
-    str r6,[pSoundUnit,#pSampleVal]
+    @ str r6,[pSoundUnit,#pSampleVal]
     muls r7,r6,r7 @sample*envelope/256
-    asrs r7,r7,#8
-    str r7,[pSoundUnit,#pVal]
+    @ asrs r7,r7,#8
+    @ str r7,[pSoundUnit,#pVal]
     adds mixOut,r7,mixOut @mixOut+=sample*envelope/256
 
     ldr r6,[pSoundUnit,#pWavetablePos]
@@ -105,7 +105,7 @@ adds r5,r5,pSoundUnit
 str mixOut,[r5]
 
 @ mixOut /=1<<6, 2^(10-1)<= mixOut <=2^(10-1)-1
-asrs mixOut,mixOut,#8
+asrs mixOut,mixOut,#(8+8)
 ldr r5,=#-128
 cmp mixOut,r5
 bge saturateEnd
@@ -206,7 +206,9 @@ ands note,note,r5
 lsls note,note,#1
 ldr r5,=WaveTable_Celesta_C5_Increment
 ldrh r5,[r5,note]
-cpsid i                @ PRIMASK=1 Disable all interrupt except NMI ands Hardfault
+@cpsid i                @ PRIMASK=1 Disable all interrupt except NMI ands Hardfault
+movs r7,#1
+MSR PRIMASK,r7
 str r5,[pSynth,#pIncrement]
 movs r5,#0
 str r5,[pSynth,#pWavetablePos]
@@ -222,7 +224,9 @@ ldr r5,=#0
 str r5,[pSynth,#pEnvelopePos]
 ldr r5,=#255
 str r5,[pSynth,#pEnvelopeLevel]
-cpsie i               @ PRIMASK=0 enable all interrupt
+@ cpsie i               @ PRIMASK=0 enable all interrupt
+movs r7,#0
+MSR PRIMASK,r7
 movs pSynth,r0
 
 ldr r5,=#pLastSoundUnit
