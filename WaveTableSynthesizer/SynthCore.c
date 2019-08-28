@@ -35,6 +35,7 @@ void NoteOnC(Synthesizer* synth,uint8_t note)
 	soundUnits[lastSoundUnit].waveTableAddress = (uint32_t)WaveTable_Celesta_C5;
 	soundUnits[lastSoundUnit].waveTableLen = WAVETABLE_CELESTA_C5_LEN;
 	soundUnits[lastSoundUnit].waveTableLoopLen = WAVETABLE_CELESTA_C5_LOOP_LEN;
+	soundUnits[lastSoundUnit].waveTableAttackLen = WAVETABLE_CELESTA_C5_ATTACK_LEN;
 	soundUnits[lastSoundUnit].envelopeLevel = 255;
 	//enable_interrupts();
 
