@@ -2,7 +2,8 @@
     "files.encoding": "gbk",
     "files.associations": {
         "common.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "synthcore.h": "c"
     },
     "C_Cpp.default.cStandard": "c99",
     "C_Cpp.default.defines": ["NV32"]
