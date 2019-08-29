@@ -20,6 +20,7 @@
 #include "sim.h"
 #include "gpio.h"
 #include "Player.h"
+#include "NV32.h"
 
 Player mPlayer;
 
@@ -69,6 +70,9 @@ int main (void)
     // TestSynth();
     SIM_RemapETM2CH0Pin();//映射对应通道管脚到PH0
     SIM_RemapETM2CH1Pin();//映射对应通道管脚到PH1
+
+
+    (*((uint32_t*)0x4004900C))=PORT_HDRVE_PTH1_MASK|PORT_HDRVE_PTH0_MASK;
 	
     SIM->SCGC  |= SIM_SCGC_ETM2_MASK;							//使能ETM2时钟
     ETM2->COMBINE &= ~ ETM_COMBINE_COMBINE0_MASK; //通道0和通道1独立
