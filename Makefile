@@ -76,20 +76,25 @@ LD_FLAGS = $(MC_FLAGS) -g -specs=nano.specs -specs=nosys.specs -gdwarf-2 -mthumb
 all: $(OBJECTS) $(PROJECT_NAME).elf  $(PROJECT_NAME).hex $(PROJECT_NAME).bin
 	$(TOOLCHAIN)size $(PROJECT_NAME).elf
 
-%.o: %.c Makefile nv32f100.ld
-	$(CC) -c $(CP_FLAGS) -I . $(INC_DIR) $< -o $@
+%.o: %.c Makefile makefile_std_lib.mk $(LINK_SCRIPT)
+	@echo [CC] $(notdir $<)
+	@$(CC) -c $(CP_FLAGS) -I . $(INC_DIR) $< -o $@
 
 %.o: %.s
-	$(AS) -c $(AS_FLAGS) $< -o $@
+	@echo [AS] $(notdir $<)
+	@$(AS) -c $(AS_FLAGS) $< -o $@
 
 %.elf: $(OBJECTS)
-	$(CC) $(OBJECTS) $(LD_FLAGS) -o $@
+	@echo [LD] $(PROJECT_NAME).elf
+	@$(CC) $(OBJECTS) $(LD_FLAGS) -o $@
 
 %.hex: %.elf
-	$(HEX) $< $@
+	@echo [HEX] $(PROJECT_NAME).hex
+	@$(HEX) $< $@
 
 %.bin: %.elf
-	$(BIN)  $< $@
+	@echo [BIN] $(PROJECT_NAME).hex
+	@$(BIN)  $< $@
 
 flash: $(PROJECT_NAME).bin
 	st-flash write $(PROJECT_NAME).bin 0x8000000
@@ -98,11 +103,15 @@ erase:
 	st-flash erase
 
 clean:
-	-rm -rf $(OBJECTS)
-	-rm -rf $(PROJECT_NAME).elf
-	-rm -rf $(PROJECT_NAME).map
-	-rm -rf $(PROJECT_NAME).hex
-	-rm -rf $(PROJECT_NAME).bin
-	-rm -rf $(SRC:.c=.lst)
-	-rm -rf $(ASM_SRC:.s=.lst)
+	@echo [RM] OBJ
+	@-rm -rf $(OBJECTS)
+	@echo [RM] BIN (ELF,HEX,BIN)
+	@-rm -rf $(PROJECT_NAME).elf
+	@-rm -rf $(PROJECT_NAME).hex
+	@-rm -rf $(PROJECT_NAME).bin
+	@echo [RM] LST
+	@-rm -rf $(SRC:.c=.lst)
+	@-rm -rf $(ASM_SRC:.s=.lst)
+	@echo [RM] MAP
+	@-rm -rf $(PROJECT_NAME).map
 
