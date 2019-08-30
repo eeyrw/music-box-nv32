@@ -43,6 +43,7 @@ SRC      += $(ROOT_DIR)/WaveTableSynthesizer/SynthCore.c
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/EnvelopTable.c
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/AlgorithmTest.c
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/WaveTable_Celesta_C5.c
+SRC      += $(ROOT_DIR)/WaveTableSynthesizer/WaveTable_Celesta_C6.c
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/score.c
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/Player.c
 ASM_SRC  += $(ROOT_DIR)/WaveTableSynthesizer/Synth_m0.s
@@ -93,7 +94,7 @@ all: $(OBJECTS) $(PROJECT_NAME).elf  $(PROJECT_NAME).hex $(PROJECT_NAME).bin
 	@$(HEX) $< $@
 
 %.bin: %.elf
-	@echo [BIN] $(PROJECT_NAME).hex
+	@echo [BIN] $(PROJECT_NAME).bin
 	@$(BIN)  $< $@
 
 flash: $(PROJECT_NAME).bin

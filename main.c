@@ -68,24 +68,24 @@ int main (void)
      GPIO_Init(GPIOB, GPIO_PTE7_MASK, GPIO_PinOutput);
   	// TestInit();
     // TestSynth();
-    SIM_RemapETM2CH0Pin();//映射对应通道管脚到PH0
-    SIM_RemapETM2CH1Pin();//映射对应通道管脚到PH1
+    //SIM_RemapETM2CH0Pin();//映射对应通道管脚到PH0
+    //SIM_RemapETM2CH1Pin();//映射对应通道管脚到PH1
 
 
-    (*((uint32_t*)0x4004900C))=PORT_HDRVE_PTH1_MASK|PORT_HDRVE_PTH0_MASK;
+    (*((uint32_t*)0x4004900C))=PORT_HDRVE_PTB4_MASK|PORT_HDRVE_PTB5_MASK|PORT_HDRVE_PTH1_MASK|PORT_HDRVE_PTH0_MASK;
 	
     SIM->SCGC  |= SIM_SCGC_ETM2_MASK;							//使能ETM2时钟
-    ETM2->COMBINE &= ~ ETM_COMBINE_COMBINE0_MASK; //通道0和通道1独立
+    ETM2->COMBINE &= ~ ETM_COMBINE_COMBINE2_MASK; //通道0和通道1独立
 	  ETM2->SC |= ETM_SC_CPWMS_MASK;								//选择先增后减的计数方式
-	  ETM2->COMBINE |= ETM_COMBINE_COMP0_MASK; 			//通道0和通道1的输出互补
-	  ETM2->CONTROLS[0].CnSC = ETM_CnSC_ELSA_MASK;  //低真脉冲
-    ETM2->CONTROLS[1].CnSC = ETM_CnSC_ELSA_MASK; 	
+	  ETM2->COMBINE |= ETM_COMBINE_COMP2_MASK; 			//通道0和通道1的输出互补
+	  ETM2->CONTROLS[4].CnSC = ETM_CnSC_ELSA_MASK;  //低真脉冲
+    ETM2->CONTROLS[5].CnSC = ETM_CnSC_ELSA_MASK; 	
 	 
    
 	  ETM_SetModValue(ETM2, 255);//设置频率10KHz
 	
-    ETM_SetChannelValue(ETM2, ETM_CHANNEL_CHANNEL0, 0);//设置占空比为50%
-		ETM_SetChannelValue(ETM2, ETM_CHANNEL_CHANNEL1, 0);	
+    ETM_SetChannelValue(ETM2, ETM_CHANNEL_CHANNEL4, 0);//设置占空比为50%
+		ETM_SetChannelValue(ETM2, ETM_CHANNEL_CHANNEL5, 0);	
 
 		ETM_ClockSet(ETM2, ETM_CLOCK_SYSTEMCLOCK, ETM_CLOCK_PS_DIV1); //ETM2时钟设置
     

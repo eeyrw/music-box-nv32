@@ -52,8 +52,8 @@
 .equ  WAVETABLE_CELESTA_C6_ATTACK_LEN, 838
 .equ  WAVETABLE_CELESTA_C6_LOOP_LEN, 520
 
-.equ PWM_OUT1,0x4003A010
-.equ PWM_OUT2,0x4003A018
+.equ PWM_OUT1,0x4003A030
+.equ PWM_OUT2,0x4003A038
 
 .func SynthAsm
 SynthAsm:
@@ -105,7 +105,7 @@ adds r5,r5,pSoundUnit
 str mixOut,[r5]
 
 @ mixOut /=1<<6, 2^(10-1)<= mixOut <=2^(10-1)-1
-asrs mixOut,mixOut,#(8+8)
+asrs mixOut,mixOut,#(8+9)
 ldr r5,=#-128
 cmp mixOut,r5
 bge saturateEnd
@@ -203,15 +203,20 @@ muls r5,r5,r6
 adds pSynth,pSynth,r5
 movs r5,#0x7F
 ands note,note,r5
-lsls note,note,#1
-ldr r5,=WaveTable_Celesta_C5_Increment
-ldrh r5,[r5,note]
+
+
 @cpsid i                @ PRIMASK=1 Disable all interrupt except NMI ands Hardfault
 movs r7,#1
 MSR PRIMASK,r7
-str r5,[pSynth,#pIncrement]
 movs r5,#0
 str r5,[pSynth,#pWavetablePos]
+movs r6,#80
+cmp note,r6
+bhi c6_branch
+lsls note,note,#1
+ldr r5,=WaveTable_Celesta_C5_Increment
+ldrh r5,[r5,note]
+str r5,[pSynth,#pIncrement]
 ldr r5,=WaveTable_Celesta_C5
 str r5,[pSynth,#pWaveTableAddress]
 ldr r5,=#WAVETABLE_CELESTA_C5_LEN
@@ -220,6 +225,22 @@ ldr r5,=#WAVETABLE_CELESTA_C5_LOOP_LEN
 str r5,[pSynth,#pWaveTableLoopLen]
 ldr r5,=#WAVETABLE_CELESTA_C5_ATTACK_LEN
 str r5,[pSynth,#pWaveTableAttackLen]
+b c5_c6_branch_end
+c6_branch:
+lsls note,note,#1
+ldr r5,=WaveTable_Celesta_C6_Increment
+ldrh r5,[r5,note]
+str r5,[pSynth,#pIncrement]
+ldr r5,=WaveTable_Celesta_C6
+str r5,[pSynth,#pWaveTableAddress]
+ldr r5,=#WAVETABLE_CELESTA_C6_LEN
+str r5,[pSynth,#pWaveTableLen]
+ldr r5,=#WAVETABLE_CELESTA_C6_LOOP_LEN
+str r5,[pSynth,#pWaveTableLoopLen]
+ldr r5,=#WAVETABLE_CELESTA_C6_ATTACK_LEN
+str r5,[pSynth,#pWaveTableAttackLen]
+c5_c6_branch_end:
+
 ldr r5,=#0
 str r5,[pSynth,#pEnvelopePos]
 ldr r5,=#255
