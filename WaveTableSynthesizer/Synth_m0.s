@@ -116,8 +116,9 @@ asrs mixOut,mixOut,#(MAX_VOLUME_SHIFT_BIT+8)
 
 ldr r5,=#-128
 cmp mixOut,r5
-bge saturateEnd
+bge lowerBoundSatisfied
 movs mixOut,r5
+lowerBoundSatisfied:
 ldr r5,=#127
 cmp mixOut,r5
 ble saturateEnd
@@ -216,8 +217,6 @@ ands note,note,r5
 @cpsid i                @ PRIMASK=1 Disable all interrupt except NMI ands Hardfault
 movs r7,#1
 MSR PRIMASK,r7
-movs r5,#0
-str r5,[pSynth,#pWavetablePos]
 movs r6,#80
 cmp note,r6
 bhi c6_branch
@@ -251,6 +250,7 @@ c5_c6_branch_end:
 
 ldr r5,=#0
 str r5,[pSynth,#pEnvelopePos]
+str r5,[pSynth,#pWavetablePos]
 ldr r5,=#255
 str r5,[pSynth,#pEnvelopeLevel]
 @ cpsie i               @ PRIMASK=0 enable all interrupt

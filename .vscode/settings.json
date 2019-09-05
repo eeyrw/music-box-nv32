@@ -4,9 +4,10 @@
         "common.h": "c",
         "gpio.h": "c",
         "synthcore.h": "c",
-        "adc.h": "c"
+        "nv32.h": "c"
     },
     "C_Cpp.default.cStandard": "c99",
-    "C_Cpp.default.defines": ["NV32"]
+    "C_Cpp.default.defines": ["NV32"],
+    "cortex-debug.JLinkGDBServerPath":"D:/SEGGER/JLink/JLinkGDBServerCL.exe"
     
 }

@@ -9,9 +9,7 @@
             "executable": "./music-box-nv32.elf",
             "name": "Debug (J-Link)",
             "device": "NV32F100",
-            "interface": "swd",
-            "ipAddress": null,
-            "serialNumber": null,
+            "interface": "swd"
         }
     ]
 }

@@ -69,6 +69,11 @@ int main(void)
 
   sysinit();
   GPIO_Init(GPIOB, GPIO_PTE7_MASK, GPIO_PinOutput);
+  GPIO_Init(GPIOB, GPIO_PTB1_MASK, GPIO_PinInput);
+  GPIO_Init(GPIOA, GPIO_PTA6_MASK, GPIO_PinInput);
+  GPIO_Init(GPIOA, GPIO_PTA7_MASK, GPIO_PinInput);
+
+
   // TestInit();
   // TestSynth();
   //SIM_RemapETM2CH0Pin();//映射对应通道管脚到PH0
@@ -89,7 +94,12 @@ int main(void)
   
 
   PlayerInit(&mPlayer);
-  PlayerPlay(&mPlayer);
+
+  if(GPIO_BitRead(GPIO_PTB1)==0)
+  {
+    PlayerPlay(&mPlayer);
+  }
+  
   ConfigPIT();
   ConfigADC();
   while (1)
