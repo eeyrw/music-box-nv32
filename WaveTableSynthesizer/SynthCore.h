@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #define POLY_NUM 20
+#define MAX_VOLUME_SHIFT_BIT 8
 
 typedef struct _SoundUnit
 {
@@ -26,6 +27,7 @@ typedef struct _Synthesizer
     SoundUnit SoundUnitList[POLY_NUM];
 	int32_t mixOut;
     uint32_t lastSoundUnit;
+	uint32_t mainVolume;
 }Synthesizer;
 
 

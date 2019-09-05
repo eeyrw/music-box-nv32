@@ -24,6 +24,7 @@
 @     SoundUnit SoundUnitList[POLY_NUM];
 @ 	int32_t mixOut;
 @     uint32_t lastSoundUnit;
+@	uint32_t mainVolume;
 @ }Synthesizer;
 
 .equ pWavetablePos , 0
@@ -43,6 +44,9 @@
 .equ POLY_NUM,20
 .equ pMixOut,SoundUnitSize*POLY_NUM
 .equ pLastSoundUnit,pMixOut+4
+.equ pMainVolume,pLastSoundUnit+4
+
+.equ MAX_VOLUME_SHIFT_BIT,8
 
 .equ WAVETABLE_CELESTA_C5_LEN,2608
 .equ WAVETABLE_CELESTA_C5_ATTACK_LEN,1998
@@ -104,8 +108,12 @@ ldr r5,=#pMixOut
 adds r5,r5,pSoundUnit
 str mixOut,[r5]
 
-@ mixOut /=1<<6, 2^(10-1)<= mixOut <=2^(10-1)-1
-asrs mixOut,mixOut,#(8+9)
+@ 
+ldr r5,[r5,#(pMainVolume-pMixOut)]
+asrs mixOut,mixOut,#8
+muls mixOut,r5,mixOut
+asrs mixOut,mixOut,#(MAX_VOLUME_SHIFT_BIT+8)
+
 ldr r5,=#-128
 cmp mixOut,r5
 bge saturateEnd

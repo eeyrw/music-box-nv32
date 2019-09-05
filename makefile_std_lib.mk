@@ -27,7 +27,7 @@ SRC  += $(NV32_CPU_LIB)/sysinit.c
 SRC  += $(NV32_CPU_LIB)/vectors.c
 
 # SRC  += $(NV32_DRIVER_LIB)/acmp/acmp.c
-# SRC  += $(NV32_DRIVER_LIB)/adc/adc.c
+SRC  += $(NV32_DRIVER_LIB)/adc/adc.c
 # SRC  += $(NV32_DRIVER_LIB)/crc/crc.c
 SRC  += $(NV32_DRIVER_LIB)/gpio/gpio.c
 SRC  += $(NV32_DRIVER_LIB)/ics/ics.c

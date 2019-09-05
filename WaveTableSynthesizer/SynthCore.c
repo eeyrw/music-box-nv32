@@ -22,6 +22,7 @@ void SynthInit(Synthesizer* synth)
 		soundUnits[i].waveTableAttackLen = WAVETABLE_CELESTA_C5_ATTACK_LEN;
 	}
     synth->lastSoundUnit=0;
+	synth->mainVolume=1<<MAX_VOLUME_SHIFT_BIT;
 }
 //#ifdef RUN_TEST
 void NoteOnC(Synthesizer* synth,uint8_t note)

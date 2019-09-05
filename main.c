@@ -7,6 +7,7 @@
 #include "pit.h"
 #include "sim.h"
 #include "gpio.h"
+#include "adc.h"
 #include "Player.h"
 #include "NV32.h"
 
@@ -20,7 +21,6 @@ void PIT_Task(void)
 {
   FGPIOB->PSOR = GPIO_PTE7_MASK;
   Player32kProc(&mPlayer);
-  //GPIO_Toggle(GPIOB, GPIO_PTE7_MASK);
   FGPIOB->PCOR = GPIO_PTE7_MASK;
 }
 
@@ -43,6 +43,25 @@ void ConfigPIT(void)
 
   PIT_SetCallback(PIT_CHANNEL0, PIT_Task); //设置通道1中断回调函数
 }
+
+void ConfigADC(void)
+{
+  ADC_ConfigType sADC_Config = {0};
+
+  /*初始化ADC模块*/
+  sADC_Config.u8ClockDiv = ADC_ADIV_DIVIDE_8;         /*!< ADC时钟源分频系数为8*/
+  sADC_Config.u8ClockSource = CLOCK_SOURCE_BUS_CLOCK; /*!< ADC时钟源选择总线时钟*/
+  sADC_Config.u8Mode = ADC_MODE_12BIT;                /*!< 12位转换*/
+
+  ADC_Init(ADC, &sADC_Config); /*!< 初始化ADC模块*/
+}
+
+uint32_t GetVolume(void)
+{
+  uint32_t volChn1 = ADC_PollRead(ADC, ADC_CHANNEL_AD2);
+  uint32_t volChn2 = ADC_PollRead(ADC, ADC_CHANNEL_AD3);
+  return (volChn1 + volChn2) >> 5;
+}
 /********************************************************************/
 int main(void)
 {
@@ -64,18 +83,18 @@ int main(void)
   ETM2->CONTROLS[4].CnSC = ETM_CnSC_ELSA_MASK; //低真脉冲
   ETM2->CONTROLS[5].CnSC = ETM_CnSC_ELSA_MASK;
 
-  ETM_SetModValue(ETM2, 255); //设置频率10KHz
-
-  ETM_SetChannelValue(ETM2, ETM_CHANNEL_CHANNEL4, 0); //设置占空比为50%
-  ETM_SetChannelValue(ETM2, ETM_CHANNEL_CHANNEL5, 0);
-
   ETM_ClockSet(ETM2, ETM_CLOCK_SYSTEMCLOCK, ETM_CLOCK_PS_DIV1); //ETM2时钟设置
+
+  ETM_SetModValue(ETM2, 255);
+  
 
   PlayerInit(&mPlayer);
   PlayerPlay(&mPlayer);
   ConfigPIT();
+  ConfigADC();
   while (1)
   {
+    mPlayer.mainSynthesizer.mainVolume = GetVolume();
     PlayerProcess(&mPlayer);
   }
 }
