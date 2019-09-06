@@ -250,6 +250,8 @@ void UART_InitPrint(void)
 
     sConfig.u32SysClkHz = BUS_CLK_HZ;
     sConfig.u32Baudrate  = UART_PRINT_BITRATE;
+
+    SIM_RemapUART0Pin();
     
     UART_Init (TERM_PORT, &sConfig);
 }
