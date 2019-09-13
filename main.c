@@ -19,9 +19,9 @@ void TestSynth(void);
 
 void PIT_Task(void)
 {
-  FGPIOB->PSOR = GPIO_PTE7_MASK;
+  FGPIOB->PSOR = GPIO_PTB2_MASK;
   Player32kProc(&mPlayer);
-  FGPIOB->PCOR = GPIO_PTE7_MASK;
+  FGPIOB->PCOR = GPIO_PTB2_MASK;
 }
 
 void ConfigPIT(void)
@@ -56,11 +56,16 @@ void ConfigADC(void)
   ADC_Init(ADC, &sADC_Config); /*!< ³õÊ¼»¯ADCÄ£¿é*/
 }
 
+uint32_t GetVolt(void)
+{
+  uint32_t voltChn = ADC_PollRead(ADC, ADC_CHANNEL_AD3);
+  return voltChn;
+}
+
 uint32_t GetVolume(void)
 {
   uint32_t volChn1 = ADC_PollRead(ADC, ADC_CHANNEL_AD2);
-  uint32_t volChn2 = ADC_PollRead(ADC, ADC_CHANNEL_AD3);
-  return (volChn1 + volChn2) >> 5;
+  return volChn1>>4;
 }
 /********************************************************************/
 int main(void)
@@ -68,7 +73,7 @@ int main(void)
   uint32_t i;
 
   sysinit();
-  GPIO_Init(GPIOB, GPIO_PTE7_MASK, GPIO_PinOutput);
+  GPIO_Init(GPIOB, GPIO_PTB2_MASK, GPIO_PinOutput);
   GPIO_Init(GPIOB, GPIO_PTB1_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA6_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA7_MASK, GPIO_PinInput);
@@ -95,7 +100,7 @@ int main(void)
 
   PlayerInit(&mPlayer);
 
-  if(GPIO_BitRead(GPIO_PTB1)==0)
+  if(GetVolt()<3000)
   {
     PlayerPlay(&mPlayer);
   }
