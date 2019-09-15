@@ -106,7 +106,7 @@ erase:
 clean:
 	@echo [RM] OBJ
 	@-rm -rf $(OBJECTS)
-	@echo [RM] BIN (ELF,HEX,BIN)
+	@echo [RM] BIN "(ELF,HEX,BIN)"
 	@-rm -rf $(PROJECT_NAME).elf
 	@-rm -rf $(PROJECT_NAME).hex
 	@-rm -rf $(PROJECT_NAME).bin

@@ -24,7 +24,7 @@ typedef struct _Player
 
 extern void PlayerInit(Player* player);
 extern void Player32kProc(Player* player);
-extern void PlayerProcess(Player* player);
+extern uint32_t PlayerProcess(Player* player);
 extern void PlayerPlay(Player* player);
 
 extern void UpdateTick(Player* player);

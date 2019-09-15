@@ -14,7 +14,7 @@ void Player32kProc(Player *player)
          player->decayGenTick+=1;
 }
 
-void PlayerProcess(Player *player)
+uint32_t PlayerProcess(Player *player)
 {
 
     uint8_t temp;
@@ -45,6 +45,7 @@ void PlayerProcess(Player *player)
             PlayUpdateNextScoreTick(player);
         }
     }
+    return player->status;
 }
 
 void PlayUpdateNextScoreTick(Player *player)
