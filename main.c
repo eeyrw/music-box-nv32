@@ -53,14 +53,13 @@ void DeConfigPIT(void)
 
   /* 配置通道0, 仅仅使能 */
   pPIT_Config0->u32LoadValue = 1249;
-  pPIT_Config0->bFreeze = FALSE;    //定时器在调试模式下继续运行
+  pPIT_Config0->bFreeze = FALSE;   //定时器在调试模式下继续运行
   pPIT_Config0->bModuleDis = TRUE; //使能定时器模块
   pPIT_Config0->bInterruptEn = FALSE;
   pPIT_Config0->bChainMode = FALSE;
   pPIT_Config0->bETMerEn = FALSE; //定时器使能
 
   PIT_Init(PIT_CHANNEL0, pPIT_Config0); //初始化PIT模块通道0
-
 }
 
 void ConfigADC(void)
@@ -84,19 +83,32 @@ uint32_t GetVolt(void)
 uint32_t GetVolume(void)
 {
   uint32_t volChn1 = ADC_PollRead(ADC, ADC_CHANNEL_AD2);
-  return volChn1>>4;
+  return volChn1 >> 4;
 }
 
 void ETM0Config(void)
 {
-  SIM->SCGC |= SIM_SCGC_ETM0_MASK;             //使能ETM2时钟
-  ETM0->CONTROLS[0].CnSC = ETM_CnSC_ELSA_MASK|(1<<ETM_CnSC_MSB_SHIFT); //低真脉冲
+  SIM->SCGC |= SIM_SCGC_ETM0_MASK;                                         //使能ETM2时钟
+  ETM0->CONTROLS[0].CnSC = ETM_CnSC_ELSA_MASK | (1 << ETM_CnSC_MSB_SHIFT); //低真脉冲
 
   ETM_ClockSet(ETM0, ETM_CLOCK_SYSTEMCLOCK, ETM_CLOCK_PS_DIV1); //ETM2时钟设置
 
-  ETM0->MOD=0xFF;
-  ETM0->CONTROLS[0].CnV=0xFFFF;
-    
+  ETM0->MOD = 0xFFFF;
+  ETM0->CONTROLS[0].CnV = 0xFFFF;
+}
+
+void ETM2Config(void)
+{
+  SIM->SCGC |= SIM_SCGC_ETM2_MASK;             //使能ETM2时钟
+  ETM2->COMBINE &= ~ETM_COMBINE_COMBINE2_MASK; //通道0和通道1独立
+  ETM2->SC |= ETM_SC_CPWMS_MASK;               //选择先增后减的计数方式
+  ETM2->COMBINE |= ETM_COMBINE_COMP2_MASK;     //通道0和通道1的输出互补
+  ETM2->CONTROLS[4].CnSC = ETM_CnSC_ELSA_MASK; //低真脉冲
+  ETM2->CONTROLS[5].CnSC = ETM_CnSC_ELSA_MASK;
+
+  ETM_ClockSet(ETM2, ETM_CLOCK_SYSTEMCLOCK, ETM_CLOCK_PS_DIV1); //ETM2时钟设置
+
+  ETM_SetModValue(ETM2, 255);
 }
 /********************************************************************/
 int main(void)
@@ -109,48 +121,32 @@ int main(void)
   GPIO_Init(GPIOA, GPIO_PTA6_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA7_MASK, GPIO_PinInput);
 
-
-  // TestInit();
-  // TestSynth();
-  //SIM_RemapETM2CH0Pin();//映射对应通道管脚到PH0
-  //SIM_RemapETM2CH1Pin();//映射对应通道管脚到PH1
   SIM_RemapETM0CH0Pin();
 
   (*((uint32_t *)0x4004900C)) = PORT_HDRVE_PTB4_MASK | PORT_HDRVE_PTB5_MASK | PORT_HDRVE_PTH1_MASK | PORT_HDRVE_PTH0_MASK;
 
-  SIM->SCGC |= SIM_SCGC_ETM2_MASK;             //使能ETM2时钟
-  ETM2->COMBINE &= ~ETM_COMBINE_COMBINE2_MASK; //通道0和通道1独立
-  ETM2->SC |= ETM_SC_CPWMS_MASK;               //选择先增后减的计数方式
-  ETM2->COMBINE |= ETM_COMBINE_COMP2_MASK;     //通道0和通道1的输出互补
-  ETM2->CONTROLS[4].CnSC = ETM_CnSC_ELSA_MASK; //低真脉冲
-  ETM2->CONTROLS[5].CnSC = ETM_CnSC_ELSA_MASK;
-
-  ETM_ClockSet(ETM2, ETM_CLOCK_SYSTEMCLOCK, ETM_CLOCK_PS_DIV1); //ETM2时钟设置
-
-  ETM_SetModValue(ETM2, 255);
-  
-
   PlayerInit(&mPlayer);
-
 
   ConfigPIT();
   ConfigADC();
   ETM0Config();
+  ETM2Config();
 
-    //if(GetVolt()<3000)
+  //if(GetVolt()<3000)
   {
     PlayerPlay(&mPlayer);
   }
-  
+
   while (1)
   {
     mPlayer.mainSynthesizer.mainVolume = GetVolume();
-    uint32_t playStatus=PlayerProcess(&mPlayer);
-    ETM0->CONTROLS[0].CnV=abs(mPlayer.mainSynthesizer.mixOut)>>16;
-    if(playStatus==STATUS_STOP)
-  {
-    DeConfigPIT();
-    while(1);
-  }
+    uint32_t playStatus = PlayerProcess(&mPlayer);
+    ETM0->CONTROLS[0].CnV = abs(mPlayer.mainSynthesizer.mixOut) >> 8;
+    if (playStatus == STATUS_STOP)
+    {
+      DeConfigPIT();
+      while (1)
+        ;
+    }
   }
 }
