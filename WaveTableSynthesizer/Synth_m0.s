@@ -21,10 +21,11 @@
 
 @ typedef struct _Synthesizer
 @ {
-@     SoundUnit SoundUnitList[POLY_NUM];
+@   SoundUnit SoundUnitList[POLY_NUM];
 @ 	int32_t mixOut;
-@     uint32_t lastSoundUnit;
+@   uint32_t lastSoundUnit;
 @	uint32_t mainVolume;
+@	uint32_t decayGenTick;
 @ }Synthesizer;
 
 .equ pWavetablePos , 0

@@ -120,6 +120,8 @@ int main(void)
   GPIO_Init(GPIOA, GPIO_PTB1_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA6_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA7_MASK, GPIO_PinInput);
+  GPIO_Init(GPIOA, GPIO_PTA0_MASK, GPIO_PinInput_InternalPullup);
+  GPIO_Init(GPIOA, GPIO_PTA1_MASK, GPIO_PinInput_InternalPullup);
 
   SIM_RemapETM0CH0Pin();
 
@@ -132,21 +134,16 @@ int main(void)
   ETM0Config();
   ETM2Config();
 
-  //if(GetVolt()<3000)
-  {
-    PlayerPlay(&mPlayer);
-  }
+  StartPlayScheduler(&mPlayer);
 
   while (1)
   {
-    mPlayer.mainSynthesizer.mainVolume = GetVolume();
-    uint32_t playStatus = PlayerProcess(&mPlayer);
-    ETM0->CONTROLS[0].CnV = abs(mPlayer.mainSynthesizer.mixOut) >> 8;
-    if (playStatus == STATUS_STOP)
+    mPlayer.synthesizer.mainVolume = GetVolume();
+    PlayerProcess(&mPlayer);
+    ETM0->CONTROLS[0].CnV = abs(mPlayer.synthesizer.mixOut) >> 8;
+    if(GPIO_BitRead(GPIO_PTA0_MASK)==0)
     {
-      DeConfigPIT();
-      while (1)
-        ;
+      PlaySchedulerNextScore(&mPlayer);
     }
   }
 }

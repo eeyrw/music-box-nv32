@@ -1,4 +1,4 @@
-//#ifdef RUN_TEST
+#ifdef RUN_TEST
 #include "SynthCore.h"
 #include "Player.h"
 #include <stdint.h>
@@ -79,14 +79,14 @@ void TestUpdateTickFunc(void)
     printf("~~~~~~~Start testing updateTickFunc.~~~~~~~\n");
     for(i=0;i<0xffff;i++)
     {
-        if(i!=player.currentTick)
+        if(i!=player.decoder.currentTick)
         {
             printf("UpdateTickFunc get wrong in %ld loop.\n",i);
             break;
         }
         UpdateTick(&player);
     }
-    if(i==player.currentTick)
+    if(i==player.decoder.currentTick)
         printf("UpdateTickFunc passed the test.\n");
 
 }
@@ -167,4 +167,4 @@ void TestProcess(void)
     TestUpdateTickFunc();
     TestSynth();
 }
-//#endif
+#endif

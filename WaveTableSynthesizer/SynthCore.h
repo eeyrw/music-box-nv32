@@ -28,16 +28,18 @@ typedef struct _Synthesizer
 	int32_t mixOut;
     uint32_t lastSoundUnit;
 	uint32_t mainVolume;
+	uint32_t decayGenTick;
 }Synthesizer;
 
 
 extern void SynthInit(Synthesizer* synth);
+extern void SynthGenEnvelopeProcess(Synthesizer* synth);
 
-//#ifdef RUN_TEST
+#ifdef RUN_TEST
 extern void NoteOnC(Synthesizer* synth,uint8_t note);
 extern void SynthC(Synthesizer* synth);
 extern void GenDecayEnvlopeC(Synthesizer* synth);
-//#endif
+#endif
 
 extern void NoteOnAsm(Synthesizer* synth,uint8_t note);
 extern void GenDecayEnvlopeAsm(Synthesizer* synth);
