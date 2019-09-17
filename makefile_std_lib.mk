@@ -25,6 +25,7 @@ SRC  += $(NV32_CPU_LIB)/arm_cm0.c
 SRC  += $(NV32_CPU_LIB)/start.c
 SRC  += $(NV32_CPU_LIB)/sysinit.c
 SRC  += $(NV32_CPU_LIB)/vectors.c
+SRC  += $(NV32_CPU_LIB)/systick.c
 
 # SRC  += $(NV32_DRIVER_LIB)/acmp/acmp.c
 SRC  += $(NV32_DRIVER_LIB)/adc/adc.c

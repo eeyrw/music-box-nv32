@@ -10,6 +10,8 @@
 #include "adc.h"
 #include "Player.h"
 #include "NV32.h"
+#include "systick.h"
+#include "KeyScan.h"
 
 Player mPlayer;
 
@@ -110,7 +112,30 @@ void ETM2Config(void)
 
   ETM_SetModValue(ETM2, 255);
 }
+uint32_t GlobalMills = 0;
+
+void SysTick_CallBack(void)
+{
+  GlobalMills++;
+}
+
+void SysTickConfig(void)
+{
+  SysTick_SetCallBack(SysTick_CallBack);
+  SysTick->CTRL = 0;
+  SysTick->LOAD = (BUS_CLK_HZ) / 1000 - 1; //配置定时中断时间为1MS
+  SysTick->VAL = 0;
+  NVIC_SetPriority(SysTick_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
+  SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_CLKSOURCE_Msk; //开中断开定时器
+}
 /********************************************************************/
+
+void KeyNextCallBack(uint32_t param)
+{
+  PlaySchedulerNextScore(&mPlayer);
+  printf("KeyPressed\n");
+}
+
 int main(void)
 {
   uint32_t i;
@@ -128,22 +153,22 @@ int main(void)
   (*((uint32_t *)0x4004900C)) = PORT_HDRVE_PTB4_MASK | PORT_HDRVE_PTB5_MASK | PORT_HDRVE_PTH1_MASK | PORT_HDRVE_PTH0_MASK;
 
   PlayerInit(&mPlayer);
+  KeyScanInit();
 
   ConfigPIT();
   ConfigADC();
   ETM0Config();
   ETM2Config();
-
+  SysTickConfig();
+  KeySetCallBack(USER_KEY_1, KeyNextCallBack);
   StartPlayScheduler(&mPlayer);
 
   while (1)
   {
     mPlayer.synthesizer.mainVolume = GetVolume();
     PlayerProcess(&mPlayer);
+    KeyProcess(GlobalMills);
     ETM0->CONTROLS[0].CnV = abs(mPlayer.synthesizer.mixOut) >> 8;
-    if(GPIO_BitRead(GPIO_PTA0_MASK)==0)
-    {
-      PlaySchedulerNextScore(&mPlayer);
-    }
+    KeyRawInput(USER_KEY_1, GPIO_BitRead(GPIO_PTA0_MASK));
   }
 }

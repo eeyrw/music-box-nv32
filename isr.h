@@ -42,6 +42,11 @@ extern void PIT_Ch0Isr(void);
 
 extern void RTC_Isr(void);
 
+#undef  VECTOR_015
+#define VECTOR_015      SysTick_Isr          /*!< Vector 15 points to SysTick interrupt service routine */
+
+extern void SysTick_Isr(void);
+
 #endif  //__ISR_H
 
 /* End of "isr.h" */
