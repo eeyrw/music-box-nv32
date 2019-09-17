@@ -26,4 +26,3 @@ void KeyProcess(uint32_t currentMills);
 void KeyScanInit(void);
 
 #endif
-

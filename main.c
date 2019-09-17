@@ -133,15 +133,21 @@ void SysTickConfig(void)
 void KeyNextCallBack(uint32_t param)
 {
   PlaySchedulerNextScore(&mPlayer);
-  printf("KeyPressed\n");
+}
+
+void VisualIndicatorPrcoess(Player *player)
+{
+  ETM0->CONTROLS[0].CnV = abs(player->synthesizer.mixOut) >> 8;
+}
+
+void VolumeProcess(Player *player)
+{
+  player->synthesizer.mainVolume = GetVolume();
 }
 
 int main(void)
 {
-  uint32_t i;
-
   sysinit();
-  //GPIO_Init(GPIOA, GPIO_PTB2_MASK, GPIO_PinOutput);
   GPIO_Init(GPIOA, GPIO_PTB1_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA6_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA7_MASK, GPIO_PinInput);
@@ -165,10 +171,10 @@ int main(void)
 
   while (1)
   {
-    mPlayer.synthesizer.mainVolume = GetVolume();
+    VolumeProcess(&mPlayer);
     PlayerProcess(&mPlayer);
     KeyProcess(GlobalMills);
-    ETM0->CONTROLS[0].CnV = abs(mPlayer.synthesizer.mixOut) >> 8;
     KeyRawInput(USER_KEY_1, GPIO_BitRead(GPIO_PTA0_MASK));
+    VisualIndicatorPrcoess(&mPlayer);
   }
 }

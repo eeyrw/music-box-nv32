@@ -43,9 +43,7 @@ void ScoreDecodeProcess(Player *player)
 void PlaySchedulerNextScore(Player *player)
 {
     player->decoder.status = STATUS_STOP;
-    if (player->scheduler.currentScoreIndex < player->scheduler.maxScoreNum)
-        player->scheduler.currentScoreIndex++;
-    else
+    if (!(player->scheduler.currentScoreIndex < player->scheduler.maxScoreNum))
         player->scheduler.currentScoreIndex = 0;
 }
 
