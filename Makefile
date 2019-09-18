@@ -89,7 +89,7 @@ all: $(OBJECTS) $(PROJECT_NAME).elf  $(PROJECT_NAME).hex $(PROJECT_NAME).bin
 	@$(AS) -c $(AS_FLAGS) $< -o $@
 	
 scoreList.o: scoreList.raw
-	@echo  [RAW] scoreList.raw
+	@echo [RAW] scoreList.raw
 	@$(CP) -I binary -O elf32-littlearm scoreList.raw scoreList.o
 
 %.elf: $(OBJECTS)
