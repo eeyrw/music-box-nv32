@@ -18,6 +18,13 @@ enum SCHEDULER_MODE
     MODE_ALL_SCORE_LOOP = 2
 };
 
+typedef struct _ScoreListHeader
+{
+    char identifer[4];
+    uint32_t scoreCount;
+    uint32_t firstAddr;
+}ScoreListHeader;
+
 typedef struct _ScoreDecoder
 {
     uint32_t currentTick;
@@ -29,8 +36,9 @@ typedef struct _ScoreDecoder
 typedef struct _PlayScheduler
 {
     uint32_t schedulerMode;
-    uint32_t currentScoreIndex;
+    int32_t currentScoreIndex;
     uint32_t maxScoreNum;
+    ScoreListHeader* scoreListHeader;
 } PlayScheduler;
 
 typedef struct _Player
@@ -40,12 +48,9 @@ typedef struct _Player
     PlayScheduler scheduler;
 }Player;
 
-typedef struct _ScoreListHeader
-{
-    char identifer[4];
-    uint32_t scoreCount;
-    uint8_t** list;
-}ScoreListHeader;
+
+
+extern ScoreListHeader ScoreDataList;
 
 extern void PlayerInit(Player *player);
 extern void Player32kProc(Player *player);
@@ -53,7 +58,8 @@ extern void PlayerProcess(Player *player);
 extern void ScoreDecodeProcess(Player *player);
 extern void PlayScore(Player* player, uint8_t *score);
 extern void StartPlayScheduler(Player* player);
-void PlaySchedulerNextScore(Player *player);
+extern void PlaySchedulerNextScore(Player *player);
+extern void PlaySchedulerPreviousScore(Player *player);
 
 extern void UpdateTick(ScoreDecoder *decoder);
 extern void UpdateNextScoreTick(ScoreDecoder *decoder);

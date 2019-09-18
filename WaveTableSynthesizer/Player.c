@@ -4,10 +4,6 @@
 #include "SynthCore.h"
 #include "Player.h"
 
-extern unsigned char Score[];
-extern unsigned char Score2[];
-extern unsigned char Score3[];
-uint8_t *ScoreList[3] = {Score, Score2, Score3};
 
 void Player32kProc(Player *player)
 {
@@ -32,7 +28,7 @@ void ScoreDecodeProcess(Player *player)
                 if (temp == 0xFF)
                     player->decoder.status = STATUS_STOP;
                 else
-                    NoteOnAsm(&(player->synthesizer), temp + 57);
+                    NoteOnAsm(&(player->synthesizer), temp);
             } while ((temp & 0x80) == 0);
 
             UpdateNextScoreTick(&(player->decoder));
@@ -47,13 +43,27 @@ void PlaySchedulerNextScore(Player *player)
         player->scheduler.currentScoreIndex = 0;
 }
 
+void PlaySchedulerPreviousScore(Player *player)
+{
+    player->decoder.status = STATUS_STOP;
+    player->scheduler.currentScoreIndex-=2;
+    if (player->scheduler.currentScoreIndex < 0)
+        player->scheduler.currentScoreIndex = player->scheduler.maxScoreNum-1;
+}
+
+uint8_t* GetScorePhyiscalAddr(uint32_t addr)
+{
+    return (uint8_t*)((uint32_t)(&ScoreDataList)+addr);
+}
+
 void PlaySchedulerProcess(Player *player)
 {
+    uint32_t* ScoreList=(&(player->scheduler.scoreListHeader)->firstAddr);
     if (player->scheduler.currentScoreIndex < player->scheduler.maxScoreNum && player->scheduler.schedulerMode == MODE_ORDER_PLAY)
     {
         if (player->decoder.status == STATUS_STOP)
         {
-            PlayScore(player, ScoreList[player->scheduler.currentScoreIndex]);
+            PlayScore(player, GetScorePhyiscalAddr(ScoreList[player->scheduler.currentScoreIndex]));
             if (player->scheduler.currentScoreIndex < player->scheduler.maxScoreNum)
                 player->scheduler.currentScoreIndex++;
         }
@@ -61,14 +71,14 @@ void PlaySchedulerProcess(Player *player)
     else if (player->scheduler.schedulerMode == MODE_ONE_SCORE_LOOP)
     {
         if (player->decoder.status == STATUS_STOP)
-            PlayScore(player, ScoreList[player->scheduler.currentScoreIndex]);
+            PlayScore(player, GetScorePhyiscalAddr(ScoreList[player->scheduler.currentScoreIndex]));
     }
     else if (player->scheduler.schedulerMode == MODE_ALL_SCORE_LOOP)
     {
         if (player->decoder.status == STATUS_STOP)
         {
 
-            PlayScore(player, ScoreList[player->scheduler.currentScoreIndex]);
+            PlayScore(player, GetScorePhyiscalAddr(ScoreList[player->scheduler.currentScoreIndex]));
             if (player->scheduler.currentScoreIndex < player->scheduler.maxScoreNum)
                 player->scheduler.currentScoreIndex++;
             else
@@ -100,8 +110,9 @@ void UpdateNextScoreTick(ScoreDecoder *decoder)
 
 void StartPlayScheduler(Player *player)
 {
+    player->scheduler.scoreListHeader=&ScoreDataList;
     player->scheduler.currentScoreIndex = 0;
-    player->scheduler.maxScoreNum = 3;
+    player->scheduler.maxScoreNum = (player->scheduler.scoreListHeader)->scoreCount;
     player->scheduler.schedulerMode = MODE_ORDER_PLAY;
 }
 
@@ -120,6 +131,6 @@ void PlayerInit(Player *player)
     player->decoder.status = STATUS_STOP;
     player->decoder.currentTick = 0;
     player->decoder.lastScoreTick = 0;
-    player->decoder.scorePointer = Score;
+    player->decoder.scorePointer = NULL;
     SynthInit(&(player->synthesizer));
 }

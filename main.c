@@ -135,6 +135,11 @@ void KeyNextCallBack(uint32_t param)
   PlaySchedulerNextScore(&mPlayer);
 }
 
+void KeyPreviousCallBack(uint32_t param)
+{
+  PlaySchedulerPreviousScore(&mPlayer);
+}
+
 void VisualIndicatorPrcoess(Player *player)
 {
   ETM0->CONTROLS[0].CnV = abs(player->synthesizer.mixOut) >> 8;
@@ -166,7 +171,8 @@ int main(void)
   ETM0Config();
   ETM2Config();
   SysTickConfig();
-  KeySetCallBack(USER_KEY_1, KeyNextCallBack);
+  KeySetCallBack(USER_KEY_2, KeyNextCallBack);
+  KeySetCallBack(USER_KEY_1, KeyPreviousCallBack);
   StartPlayScheduler(&mPlayer);
 
   while (1)
@@ -174,6 +180,7 @@ int main(void)
     VolumeProcess(&mPlayer);
     PlayerProcess(&mPlayer);
     KeyProcess(GlobalMills);
+    KeyRawInput(USER_KEY_2, GPIO_BitRead(GPIO_PTA1_MASK));
     KeyRawInput(USER_KEY_1, GPIO_BitRead(GPIO_PTA0_MASK));
     VisualIndicatorPrcoess(&mPlayer);
   }

@@ -127,7 +127,7 @@ SECTIONS
      * address) and copied to RAM (VMA address) in startup code.
      */
     _sidata = .;
-	
+ PROVIDE ( ScoreDataList = __ScoreDataList__ );	
     .SCORE_DATA :
 	{
 		. = ALIGN (4);
