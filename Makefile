@@ -48,6 +48,8 @@ SRC      += $(ROOT_DIR)/WaveTableSynthesizer/WaveTable_Celesta_C6.c
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/score.c
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/Player.c
 ASM_SRC  += $(ROOT_DIR)/WaveTableSynthesizer/Synth_m0.s
+# ASM_SRC  += $(ROOT_DIR)/ScoreList.s
+
 
 # user include
 INCLUDE_DIRS  = $(USER_DIR)
@@ -61,7 +63,7 @@ INC_DIR  = $(patsubst %, -I%, $(INCLUDE_DIRS))
 # run from Flash
 DEFS	 = $(DDEFS) -DRUN_FROM_FLASH=1
 
-OBJECTS  = $(ASM_SRC:.s=.o) $(SRC:.c=.o)
+OBJECTS  = $(ASM_SRC:.s=.o) $(SRC:.c=.o) scoreList.o
 
 # Define optimisation level here
 OPT = -Os
@@ -85,6 +87,10 @@ all: $(OBJECTS) $(PROJECT_NAME).elf  $(PROJECT_NAME).hex $(PROJECT_NAME).bin
 %.o: %.s
 	@echo [AS] $(notdir $<)
 	@$(AS) -c $(AS_FLAGS) $< -o $@
+	
+scoreList.o: scoreList.raw
+	@echo  [RAW] scoreList.raw
+	@$(CP) -I binary -O elf32-littlearm scoreList.raw scoreList.o
 
 %.elf: $(OBJECTS)
 	@echo [LD] $(PROJECT_NAME).elf

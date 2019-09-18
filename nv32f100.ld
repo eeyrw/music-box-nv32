@@ -14,7 +14,8 @@ MEMORY
 {
   vectors (rx) : ORIGIN = 0x00000000, LENGTH = 0x00000400
   flash_protection	(rx) : ORIGIN = 0x00000400, LENGTH = 0x00000010
-  flash (rx) : ORIGIN = 0x00000410, LENGTH = 128K - 0x00000410
+  flash (rx) : ORIGIN = 0x00000410, LENGTH = 24K - 0x00000410
+  flash_score_data (rx) : ORIGIN = 24K, LENGTH = 128K-24K
   ram (rwx) : ORIGIN =  0x1FFFF800, LENGTH = 8K
 }
 
@@ -126,6 +127,15 @@ SECTIONS
      * address) and copied to RAM (VMA address) in startup code.
      */
     _sidata = .;
+	
+    .SCORE_DATA :
+	{
+		. = ALIGN (4);
+		__ScoreDataList__ = .;  /* symbol available within program */
+		scoreList.o
+
+	} > flash_score_data  /* MEMORY section defined somewhere above */
+	  
     .data : AT(_sidata) /* LMA address is _sidata (in FLASH) */
     {
         . = ALIGN(4);
@@ -167,6 +177,8 @@ SECTIONS
         . = . + _stack_size;
         . = ALIGN(4);
     } >ram
+	
+
 }
 
 /* Nice to have */
