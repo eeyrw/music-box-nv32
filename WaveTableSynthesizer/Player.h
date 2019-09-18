@@ -40,6 +40,13 @@ typedef struct _Player
     PlayScheduler scheduler;
 }Player;
 
+typedef struct _ScoreListHeader
+{
+    char identifer[4];
+    uint32_t scoreCount;
+    uint8_t** list;
+}ScoreListHeader;
+
 extern void PlayerInit(Player *player);
 extern void Player32kProc(Player *player);
 extern void PlayerProcess(Player *player);
