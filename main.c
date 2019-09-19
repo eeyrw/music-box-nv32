@@ -180,8 +180,8 @@ int main(void)
     VolumeProcess(&mPlayer);
     PlayerProcess(&mPlayer);
     KeyProcess(GlobalMills);
-    KeyRawInput(USER_KEY_2, GPIO_BitRead(GPIO_PTA1_MASK));
-    KeyRawInput(USER_KEY_1, GPIO_BitRead(GPIO_PTA0_MASK));
+    KeyRawInput(USER_KEY_2, GPIO_BitRead(GPIO_PTA0));
+    KeyRawInput(USER_KEY_1, GPIO_BitRead(GPIO_PTA1));
     VisualIndicatorPrcoess(&mPlayer);
   }
 }
