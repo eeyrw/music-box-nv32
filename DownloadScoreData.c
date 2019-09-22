@@ -16,8 +16,8 @@
 #define STR(x) #x
 #define STRX(x) STR(x)
 
-static uint8_t CRC;
-static uint8_t rx_buffer[BLOCK_SIZE];
+uint8_t CRC;
+uint8_t rx_buffer[BLOCK_SIZE];
 
 /**
  * Initialize UART1 in 8N1 mode
