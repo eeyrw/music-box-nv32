@@ -158,7 +158,7 @@ int main(void)
   GPIO_Init(GPIOA, GPIO_PTA7_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA0_MASK, GPIO_PinInput_InternalPullup);
   GPIO_Init(GPIOA, GPIO_PTA1_MASK, GPIO_PinInput_InternalPullup);
-
+  GPIO_Init(GPIOA, GPIO_PTA2_MASK, GPIO_PinInput);
   SIM_RemapETM0CH0Pin();
 
   (*((uint32_t *)0x4004900C)) = PORT_HDRVE_PTB4_MASK | PORT_HDRVE_PTB5_MASK | PORT_HDRVE_PTH1_MASK | PORT_HDRVE_PTH0_MASK;
@@ -166,14 +166,21 @@ int main(void)
   PlayerInit(&mPlayer);
   KeyScanInit();
 
-  ConfigPIT();
+
   ConfigADC();
+  
+  if(GetVolt>500)
+  {
+    bootloader_main();
+  }
+    ConfigPIT();
   ETM0Config();
   ETM2Config();
   SysTickConfig();
   KeySetCallBack(USER_KEY_2, KeyNextCallBack);
   KeySetCallBack(USER_KEY_1, KeyPreviousCallBack);
   StartPlayScheduler(&mPlayer);
+
 
   while (1)
   {

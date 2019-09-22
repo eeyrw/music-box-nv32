@@ -39,6 +39,7 @@ ASM_SRC   =
 SRC      += $(USER_DIR)/main.c
 SRC      += $(USER_DIR)/gcc-stdio-retarget.c
 SRC      += $(USER_DIR)/KeyScan.c
+SRC      += $(USER_DIR)/DownloadScoreData.c
 
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/SynthCore.c
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/EnvelopTable.c

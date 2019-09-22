@@ -105,10 +105,10 @@ void sysinit (void)
     ICS_Init(&sICSConfig);   /* initialize ICS */
 
     /* initialize UART for printing */
-    UART_InitPrint();                        
+    //UART_InitPrint();                        
 
 #if	defined(PRINT_SYS_LOG)
-    print_sys_log();
+    //print_sys_log();
 #endif
     
  }
