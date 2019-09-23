@@ -5,6 +5,26 @@
 #include "sysinit.h"
 #include "flash.h"
 #include "eeprom.h"
+#include "ringbuffer.h"
+#include "DownloadScoreData.h"
+
+#define EVENT_FRAME_FLAG 0x776E //ASCII:"wn"
+
+#define CMD_FLASH_INIT 0x01
+#define CMD_FLASH_WRITE_BLOCK 0x02
+#define CMD_FLASH_DEINIT 0x03
+
+#define CMD_OFFEST 0x03
+
+typedef enum _EVENT_FRAME_PARSER_STATUS {
+	FRAME_PARSER_STATUS_IDLE = 0,
+	FRAME_PARSER_STATUS_SOF_LO,
+	FRAME_PARSER_STATUS_SOF_HI,
+	FRAME_PARSER_STATUS_RECV_CMD_LEN,
+
+} EVENT_FRAME_PARSER_STATUS;
+
+EVENT_FRAME_PARSER_STATUS frameParseStatus=FRAME_PARSER_STATUS_IDLE;
 
 /* application address */
 #define BOOT_ADDR 24 * 1024 //24k
@@ -12,12 +32,32 @@
 /* flash block size */
 #define BLOCK_SIZE 512
 
-/* not configured by user */
-#define STR(x) #x
-#define STRX(x) STR(x)
+ring_buffer_t ring_buffer;
 
-uint8_t CRC;
-uint8_t rx_buffer[BLOCK_SIZE];
+uint8_t cmdBuf[1024];
+uint8_t cmdRetBuf[1024];
+
+
+void UART_HandleInt(UART_Type *pUART)
+{
+
+    volatile uint8_t read_temp = 0;
+
+    /* 检查接收是否过载 */
+    if(UART_CheckFlag(pUART,UART_FlagOR))
+    {
+        read_temp = UART_ReadDataReg(pUART);
+    }
+
+    /* 检测接收器是否满 */
+    else if(UART_IsRxBuffFull(pUART))
+    {
+        /* 接收数据的缓冲区 */
+        read_temp = UART_ReadDataReg(pUART);
+        ring_buffer_queue(&ring_buffer,read_temp);
+    }
+
+}
 
 /**
  * Initialize UART1 in 8N1 mode
@@ -30,132 +70,137 @@ void uart_init()
     sConfig.u32SysClkHz = BUS_CLK_HZ;         //选择时钟源为总线时钟
     sConfig.u32Baudrate = UART_PRINT_BITRATE; //设置波特率
     UART_Init(UART0, &sConfig); //初始化串口 1
+    UART_SetCallback(UART_HandleInt);
+    UART_EnableInterrupt(UART0,UART_RxBuffFullInt);
+    UART_EnableInterrupt(UART0,UART_RxOverrunInt);
     SIM_RemapUART0Pin();
+    NVIC_EnableIRQ(UART0_IRQn);
 }
 
-/**
- * Write byte into UART
- */
-void uart_write(uint8_t data)
-{
-    UART_PutChar(UART0, data);
-}
 
-/**
- * Read byte from UART and reset watchdog
- */
-uint8_t uart_read()
-{
-    return UART_GetChar(UART0);
-}
 
-/**
- * Calculate CRC-8-CCIT.
- * Polynomial: x^8 + x^2 + x + 1 (0x07)
- *
- * @param data input byte
- * @param crc initial CRC
- * @return CRC value
- */
-uint8_t crc8_update(uint8_t data, uint8_t crc)
-{
-    crc ^= data;
-    for (uint8_t i = 0; i < 8; i++)
-        crc = (crc & 0x80) ? (crc << 1) ^ 0x07 : crc << 1;
-    return crc;
-}
 
-/**
- * Send ACK response
- */
-void serial_send_ack()
-{
-    uart_write(0xAA);
-    uart_write(0xBB);
-}
-
-/**
- * Send NACK response (CRC mismatch)
- */
-void serial_send_nack()
-{
-    uart_write(0xDE);
-    uart_write(0xAD);
-}
-
-/**
- * Read BLOCK_SIZE bytes from UART
- *
- * @param dest destination buffer
- */
-void serial_read_block(uint8_t *dest)
-{
-    serial_send_ack();
-    for (uint32_t i = 0; i < BLOCK_SIZE; i++)
-    {
-        uint8_t rx = uart_read();
-        dest[i] = rx;
-        CRC = crc8_update(rx, CRC);
-    }
-}
-
-/**
- * Enter bootloader and perform firmware update
- */
-void bootloader_exec()
-{
-    uint8_t chunks, crc_rx;
-    uint32_t addr = BOOT_ADDR;
-
-    /* enter bootloader */
-    for (;;)
-    {
-        uint8_t rx = uart_read();
-        if (rx != 0xDE)
-            continue;
-        rx = uart_read();
-        if (rx != 0xAD)
-            continue;
-        rx = uart_read();
-        if (rx != 0xBE)
-            continue;
-        rx = uart_read();
-        if (rx != 0xEF)
-            continue;
-        chunks = uart_read();
-        crc_rx = uart_read();
-        rx = uart_read();
-        if (crc_rx != rx)
-            continue;
-        break;
-    }
-
-    /* unlock flash */
-    Flash_Init();
-    /* get main firmware */
-    for (uint32_t i = 0; i < chunks; i++)
-    {
-        serial_read_block(rx_buffer);
-        Flash_EraseSector(addr);
-        Flash_Program(addr, rx_buffer, BLOCK_SIZE);
-        addr += BLOCK_SIZE;
-    }
-
-    /* verify CRC */
-    if (CRC != crc_rx)
-    {
-        serial_send_nack();
-        for (;;)
-            ;
-    }
-
-    serial_send_ack();
-}
-
-void bootloader_main()
+void DownloadInit()
 {
 
     /* execute bootloader */
     uart_init();
-    bootloader_exec();
+    /* Create and initialize ring buffer */
+
+    ring_buffer_init(&ring_buffer);
+}
+
+uint8_t *GetCmdDataPtr(uint8_t *buffer)
+{
+	return buffer + CMD_OFFEST;
+}
+
+
+
+int Protocol_Process(unsigned char *Buf)
+{
+	unsigned int i;
+	int retByteNum = 0;
+	uint8_t *rbf;
+	uint16_t blockIndex;
+	uint16_t blockSize;
+
+	switch (Buf[0])
+	{
+
+	case CMD_FLASH_WRITE_BLOCK:
+		blockIndex =  Buf[1]|Buf[2]<<8;
+		blockSize =  Buf[3]|Buf[4]<<8;
+        //Flash_EraseSector(blockIndex*BLOCK_SIZE+BOOT_ADDR);
+        //Flash_Program(blockIndex*BLOCK_SIZE+BOOT_ADDR, &Buf[5], blockSize);
+
+
+		rbf = GetCmdDataPtr(cmdRetBuf);
+		rbf[0] = CMD_FLASH_WRITE_BLOCK;
+		rbf[1] = 4;
+		rbf[2] = Buf[1];
+		rbf[3] = Buf[2];
+		rbf[4] = Buf[3];
+		rbf[5] = Buf[4];
+		retByteNum = rbf[1] + 1 + 1;
+		break;
+
+	default:
+		break;
+	}
+	return retByteNum;
+}
+
+
+void ParseEventFrameStream(ring_buffer_t* buffer)
+{
+	uint8_t streamByte;
+	static uint8_t cmdLen = 0;
+
+	switch (frameParseStatus)
+	{
+	case FRAME_PARSER_STATUS_IDLE:
+	{
+		if (!ring_buffer_is_empty(buffer))
+		{
+			ring_buffer_dequeue(buffer,&streamByte);
+			if (streamByte == ((uint8_t)(0xFF & EVENT_FRAME_FLAG)))
+			{
+				frameParseStatus = FRAME_PARSER_STATUS_SOF_LO;
+			}
+		}
+	}
+	break;
+	case FRAME_PARSER_STATUS_SOF_LO:
+	{
+		if (!ring_buffer_is_empty(buffer))
+		{
+			ring_buffer_dequeue(buffer,&streamByte);
+			if (streamByte == ((uint8_t)(0xFF & (EVENT_FRAME_FLAG >> 8))))
+			{
+				frameParseStatus = FRAME_PARSER_STATUS_SOF_HI;
+			}
+		}
+	}
+	break;
+	case FRAME_PARSER_STATUS_SOF_HI:
+	{
+		if (!ring_buffer_is_empty(buffer))
+		{
+			ring_buffer_dequeue(buffer,&streamByte);
+			cmdLen = streamByte;
+			frameParseStatus = FRAME_PARSER_STATUS_RECV_CMD_LEN;
+		}
+	}
+	break;
+
+	case FRAME_PARSER_STATUS_RECV_CMD_LEN:
+	{
+		if (ring_buffer_num_items(buffer)>= cmdLen)
+		{
+			ring_buffer_dequeue_arr(buffer,cmdBuf, cmdLen);
+			int retByteNum = Protocol_Process(cmdBuf);
+			if (retByteNum > 0)
+			{
+				cmdRetBuf[0] = (uint8_t)(0xFF & EVENT_FRAME_FLAG);
+				cmdRetBuf[1] = (uint8_t)(0xFF & (EVENT_FRAME_FLAG >> 8));
+				cmdRetBuf[2] = retByteNum;
+				retByteNum += 3;
+				UART_SendWait(UART0, cmdRetBuf, retByteNum);
+			}
+
+			frameParseStatus = FRAME_PARSER_STATUS_IDLE;
+			cmdLen = 0;
+		}
+	}
+	break;
+
+	default:
+		break;
+	}
+}
+
+void DownloadProcess(void)
+{
+ParseEventFrameStream(&ring_buffer);
 }

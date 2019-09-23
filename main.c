@@ -12,6 +12,7 @@
 #include "NV32.h"
 #include "systick.h"
 #include "KeyScan.h"
+#include "DownloadScoreData.h"
 
 Player mPlayer;
 
@@ -166,14 +167,9 @@ int main(void)
   PlayerInit(&mPlayer);
   KeyScanInit();
 
-
+  DownloadInit();
   ConfigADC();
-  
-  if(GetVolt>500)
-  {
-    bootloader_main();
-  }
-    ConfigPIT();
+  ConfigPIT();
   ETM0Config();
   ETM2Config();
   SysTickConfig();
@@ -190,5 +186,6 @@ int main(void)
     KeyRawInput(USER_KEY_2, GPIO_BitRead(GPIO_PTA0));
     KeyRawInput(USER_KEY_1, GPIO_BitRead(GPIO_PTA1));
     VisualIndicatorPrcoess(&mPlayer);
+    DownloadProcess();
   }
 }

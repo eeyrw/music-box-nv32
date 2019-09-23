@@ -47,6 +47,9 @@ SRC      += $(ROOT_DIR)/WaveTableSynthesizer/AlgorithmTest.c
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/WaveTable_Celesta_C5.c
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/WaveTable_Celesta_C6.c
 SRC      += $(ROOT_DIR)/WaveTableSynthesizer/Player.c
+
+SRC      += $(ROOT_DIR)/Ring-Buffer/ringbuffer.c
+
 ASM_SRC  += $(ROOT_DIR)/WaveTableSynthesizer/Synth_m0.s
 # ASM_SRC  += $(ROOT_DIR)/ScoreList.s
 
@@ -54,6 +57,7 @@ ASM_SRC  += $(ROOT_DIR)/WaveTableSynthesizer/Synth_m0.s
 # user include
 INCLUDE_DIRS  = $(USER_DIR)
 INCLUDE_DIRS  += $(ROOT_DIR)/WaveTableSynthesizer
+INCLUDE_DIRS  += $(ROOT_DIR)/Ring-Buffer
 
 # include sub makefiles
 include makefile_std_lib.mk   # NV32 Library
