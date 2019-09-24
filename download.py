@@ -14,23 +14,22 @@ def bootloader_exec(port, baud):
     data = open(FILE, 'rb')
     total = 0
     with data as f:
-        frame = bytearray(EVENT_FRAME)
         flash_cmd = 0x02
         chunk = bytearray(f.read(BLOCK_SIZE))
         chunkIndex=0
         while chunk:
+            frame = bytearray(EVENT_FRAME)
             total += len(chunk)
             print(total)
-            chunk.extend([0xFF] * (BLOCK_SIZE - len(chunk)))
-            frame.extend([flash_cmd,5,chunkIndex&0xff,chunkIndex>>8,BLOCK_SIZE&0xff,BLOCK_SIZE>>8,chunk])
+            frameSize=len(chunk)+5
+            frame.extend([frameSize&0xFF,frameSize>>8,flash_cmd,chunkIndex&0xff,chunkIndex>>8,len(chunk)&0xff,len(chunk)>>8])
+            frame.extend(chunk)
             ser.write(frame)
             ser.flushOutput()
             chunk = bytearray(f.read(BLOCK_SIZE))
-        ack = ser.read(1)
-        if ack == bytearray(0x02):
-            print('Done')
-        else:
-            print('Invalid response')
+            ack = ser.read(9)
+            print('Recv: ',ack.hex())
+            chunkIndex+=1
     ser.close()
 
 if __name__ == "__main__":
