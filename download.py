@@ -1,4 +1,4 @@
-import serial, os, math, argparse
+import serial, os, math, argparse, struct
 from time import sleep
 
 BLOCK_SIZE = 512 # 128 for parts with >8k flash
@@ -20,7 +20,7 @@ def bootloader_exec(port, baud):
         while chunk:
             frame = bytearray(EVENT_FRAME)
             total += len(chunk)
-            print(total)
+            print('Written: ',total)
             frameSize=len(chunk)+5
             frame.extend([frameSize&0xFF,frameSize>>8,flash_cmd,chunkIndex&0xff,chunkIndex>>8,len(chunk)&0xff,len(chunk)>>8])
             frame.extend(chunk)
@@ -28,7 +28,14 @@ def bootloader_exec(port, baud):
             ser.flushOutput()
             chunk = bytearray(f.read(BLOCK_SIZE))
             ack = ser.read(9)
-            print('Recv: ',ack.hex())
+            frameId,frameLen,cmd,blockIndex,blockLen=struct.unpack('<HHBHH',ack)
+            if frameId!=0x776E:
+                print('Invalid Frame ID!')
+                break
+            if cmd==flash_cmd:
+                if blockIndex!=chunkIndex:
+                    print('Block Index not matched.')
+                    break
             chunkIndex+=1
     ser.close()
 
