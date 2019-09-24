@@ -76,7 +76,7 @@ void uart_init()
 	UART_ConfigType sConfig;
 
 	sConfig.u32SysClkHz = BUS_CLK_HZ;		  //选择时钟源为总线时钟
-	sConfig.u32Baudrate = UART_PRINT_BITRATE; //设置波特率
+	sConfig.u32Baudrate = 115200; //设置波特率
 	UART_Init(UART0, &sConfig);				  //初始化串口 1
 	UART_SetCallback(UART_HandleInt);
 	UART_EnableInterrupt(UART0, UART_RxBuffFullInt);

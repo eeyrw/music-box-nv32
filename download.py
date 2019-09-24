@@ -28,6 +28,9 @@ def bootloader_exec(port, baud):
             ser.flushOutput()
             chunk = bytearray(f.read(BLOCK_SIZE))
             ack = ser.read(9)
+            if len(ack)!=9:
+                print('Invalid ACK Len!')
+                break            
             frameId,frameLen,cmd,blockIndex,blockLen=struct.unpack('<HHBHH',ack)
             if frameId!=0x776E:
                 print('Invalid Frame ID!')
