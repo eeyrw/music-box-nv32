@@ -9,6 +9,7 @@
 #include "gpio.h"
 #include "adc.h"
 #include "Player.h"
+#include "SynthCore.h"
 #include "NV32.h"
 #include "systick.h"
 #include "KeyScan.h"
@@ -113,6 +114,11 @@ void ETM2Config(void)
 
   ETM_SetModValue(ETM2, 255);
 }
+
+void DeConfigETM2(void)
+{
+  SIM->SCGC &=~SIM_SCGC_ETM2_MASK;             //Ê¹ÄÜETM2Ê±ÖÓ
+}
 uint32_t GlobalMills = 0;
 
 void SysTick_CallBack(void)
@@ -151,6 +157,28 @@ void VolumeProcess(Player *player)
   player->synthesizer.mainVolume = GetVolume();
 }
 
+void SynthHwOnOff(SYNTH_HW_STATUS status)
+{
+  static SYNTH_HW_STATUS lastStatus=SYNTH_HW_OFF;
+  if(status==SYNTH_HW_ON)
+  {
+    if(lastStatus!=SYNTH_HW_ON)
+    {
+      ConfigPIT();
+      ETM2Config();
+    }
+  }
+  else
+  {
+    if(lastStatus!=SYNTH_HW_OFF)
+    {
+      DeConfigPIT();
+      DeConfigETM2();
+    }
+  }
+  
+}
+
 int main(void)
 {
   sysinit();
@@ -165,13 +193,12 @@ int main(void)
   (*((uint32_t *)0x4004900C)) = PORT_HDRVE_PTB4_MASK | PORT_HDRVE_PTB5_MASK | PORT_HDRVE_PTH1_MASK | PORT_HDRVE_PTH0_MASK;
 
   PlayerInit(&mPlayer);
+  SynthRegisterHwChangeFunc(&mPlayer.synthesizer,SynthHwOnOff);
   KeyScanInit();
 
   DownloadInit();
   ConfigADC();
-  ConfigPIT();
   ETM0Config();
-  ETM2Config();
   SysTickConfig();
   KeySetCallBack(USER_KEY_2, KeyNextCallBack);
   KeySetCallBack(USER_KEY_1, KeyPreviousCallBack);

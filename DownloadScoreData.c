@@ -7,6 +7,7 @@
 #include "eeprom.h"
 #include "ringbuffer.h"
 #include "DownloadScoreData.h"
+#include "Player.h"
 
 #define EVENT_FRAME_FLAG 0x776E //ASCII:"wn"
 
@@ -47,6 +48,7 @@ uint8_t cmdRetBuf[1024];
 
 uint8_t blockBuf[BLOCK_SIZE];
 
+extern Player mPlayer;
 
 void UART_HandleInt(UART_Type *pUART)
 {
@@ -111,8 +113,8 @@ int Protocol_Process(unsigned char *Buf)
 
 	switch (Buf[0])
 	{
-
 	case CMD_FLASH_WRITE_BLOCK:
+		StopPlayScheduler(&mPlayer);
 		cmdFlashWriteBlockHeader = (CMD_FLASH_WRITE_BLOCK_HEADER*)&Buf[1];
 		uint32_t addr=cmdFlashWriteBlockHeader->blockIndex*BLOCK_SIZE+BOOT_ADDR;
 		Flash_EraseSector(addr);
