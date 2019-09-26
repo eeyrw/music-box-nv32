@@ -115,10 +115,6 @@ void ETM2Config(void)
   ETM_SetModValue(ETM2, 255);
 }
 
-void DeConfigETM2(void)
-{
-  SIM->SCGC &=~SIM_SCGC_ETM2_MASK;             //Ê¹ÄÜETM2Ê±ÖÓ
-}
 uint32_t GlobalMills = 0;
 
 void SysTick_CallBack(void)
@@ -172,8 +168,8 @@ void SynthHwOnOff(SYNTH_HW_STATUS status)
   {
     if(lastStatus!=SYNTH_HW_OFF)
     {
-      DeConfigPIT();
-      DeConfigETM2();
+      PIT_DeInit();
+      ETM_DeInit(ETM2);
     }
   }
   
