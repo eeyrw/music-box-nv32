@@ -25,7 +25,7 @@ def bootloader_exec(port, baud):
             frame.extend([frameSize&0xFF,frameSize>>8,flash_cmd,chunkIndex&0xff,chunkIndex>>8,len(chunk)&0xff,len(chunk)>>8])
             frame.extend(chunk)
             ser.write(frame)
-            ser.flushOutput()
+            ser.flush()
             chunk = bytearray(f.read(BLOCK_SIZE))
             ack = ser.read(9)
             if len(ack)!=9:

@@ -155,24 +155,25 @@ void VolumeProcess(Player *player)
 
 void SynthHwOnOff(SYNTH_HW_STATUS status)
 {
-  static SYNTH_HW_STATUS lastStatus=SYNTH_HW_OFF;
-  if(status==SYNTH_HW_ON)
+  static SYNTH_HW_STATUS lastStatus = SYNTH_HW_OFF;
+  if (status == SYNTH_HW_ON)
   {
-    if(lastStatus!=SYNTH_HW_ON)
+    if (lastStatus != SYNTH_HW_ON)
     {
+      lastStatus = SYNTH_HW_ON;
       ConfigPIT();
       ETM2Config();
     }
   }
   else
   {
-    if(lastStatus!=SYNTH_HW_OFF)
+    if (lastStatus != SYNTH_HW_OFF)
     {
+      lastStatus = SYNTH_HW_OFF;
       PIT_DeInit();
       ETM_DeInit(ETM2);
     }
   }
-  
 }
 
 int main(void)
@@ -189,7 +190,7 @@ int main(void)
   (*((uint32_t *)0x4004900C)) = PORT_HDRVE_PTB4_MASK | PORT_HDRVE_PTB5_MASK | PORT_HDRVE_PTH1_MASK | PORT_HDRVE_PTH0_MASK;
 
   PlayerInit(&mPlayer);
-  SynthRegisterHwChangeFunc(&mPlayer.synthesizer,SynthHwOnOff);
+  SynthRegisterHwChangeFunc(&mPlayer.synthesizer, SynthHwOnOff);
   KeyScanInit();
 
   DownloadInit();
@@ -199,7 +200,6 @@ int main(void)
   KeySetCallBack(USER_KEY_2, KeyNextCallBack);
   KeySetCallBack(USER_KEY_1, KeyPreviousCallBack);
   StartPlayScheduler(&mPlayer);
-
 
   while (1)
   {

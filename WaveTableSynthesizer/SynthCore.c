@@ -20,6 +20,7 @@ void SynthInit(Synthesizer *synth)
 		soundUnits[i].waveTableLoopLen = WAVETABLE_CELESTA_C5_LOOP_LEN;
 		soundUnits[i].waveTableAttackLen = WAVETABLE_CELESTA_C5_ATTACK_LEN;
 	}
+	synth->mixOut = 0;
 	synth->lastSoundUnit = 0;
 	synth->mainVolume = 1 << (MAX_VOLUME_SHIFT_BIT - 1);
 	synth->decayGenTick = 0;
@@ -33,11 +34,13 @@ void SynthRegisterHwChangeFunc(Synthesizer *synth, void (*hwSet)(SYNTH_HW_STATUS
 void SynthOn(Synthesizer *synth)
 {
 	synth->hwSet(SYNTH_HW_ON);
+	SynthInit(synth);
 }
 
 void SynthOff(Synthesizer *synth)
 {
 	synth->hwSet(SYNTH_HW_OFF);
+	SynthInit(synth);
 }
 
 void SynthGenEnvelopeProcess(Synthesizer *synth)
