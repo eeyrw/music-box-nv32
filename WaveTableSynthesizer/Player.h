@@ -71,7 +71,7 @@ extern void StartPlayScheduler(Player* player);
 extern void StopPlayScheduler(Player *player);
 extern void PlaySchedulerNextScore(Player *player);
 extern void PlaySchedulerPreviousScore(Player *player);
-
+extern void SchedulerSetIntialRandomSeed(Player *player,uint8_t randomSeed);
 extern void UpdateTick(ScoreDecoder *decoder);
 extern void UpdateNextScoreTick(ScoreDecoder *decoder);
 #endif

@@ -156,6 +156,7 @@ void VolumeProcess(Player *player)
 void SynthHwOnOff(SYNTH_HW_STATUS status)
 {
   static SYNTH_HW_STATUS lastStatus = SYNTH_HW_OFF;
+  DisableInterrupts;
   if (status == SYNTH_HW_ON)
   {
     if (lastStatus != SYNTH_HW_ON)
@@ -174,6 +175,17 @@ void SynthHwOnOff(SYNTH_HW_STATUS status)
       ETM_DeInit(ETM2);
     }
   }
+  EnableInterrupts;
+}
+
+uint8_t GetRandom(void)
+{
+    uint8_t random=0;
+   for (int i=0; i<3; i++) 
+   { 
+      random |= ((ADC_PollRead(ADC, ADC_CHANNEL_AD5) & 0x07) << (i *3)); 
+   }
+   return random;
 }
 
 int main(void)
@@ -200,6 +212,8 @@ int main(void)
   KeySetCallBack(USER_KEY_2, KeyNextCallBack);
   KeySetCallBack(USER_KEY_1, KeyPreviousCallBack);
   StartPlayScheduler(&mPlayer);
+  SchedulerSetIntialRandomSeed(&mPlayer,GetRandom());
+
 
   while (1)
   {

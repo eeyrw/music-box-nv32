@@ -50,8 +50,6 @@ void PlaySchedulerPreviousScore(Player *player)
     StopDecode(player);
 }
 
-
-
 uint8_t *GetScorePhyiscalAddr(uint32_t addr)
 {
     return (uint8_t *)((uint32_t)(&ScoreDataList) + addr);
@@ -135,6 +133,11 @@ void StartPlayScheduler(Player *player)
     player->scheduler.currentScoreIndex = -1;
     player->scheduler.maxScoreNum = (player->scheduler.scoreListHeader)->scoreCount;
     player->scheduler.schedulerMode = MODE_ORDER_PLAY;
+}
+
+void SchedulerSetIntialRandomSeed(Player *player, uint8_t randomSeed)
+{
+    player->scheduler.currentScoreIndex = (randomSeed % player->scheduler.maxScoreNum) - 1;
 }
 
 void StopPlayScheduler(Player *player)

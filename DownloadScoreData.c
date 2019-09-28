@@ -14,15 +14,15 @@
 #define CMD_FLASH_INIT 0x01
 #define CMD_FLASH_WRITE_BLOCK 0x02
 #define CMD_FLASH_DEINIT 0x03
+#define CMD_FLASH_SZIE 0x04
 
 #define CMD_OFFEST 0x04
 
-typedef struct _CMD_FLASH_WRITE_BLOCK_HEADER 
+typedef struct _CMD_FLASH_WRITE_BLOCK_HEADER
 {
 	uint16_t blockIndex;
 	uint16_t dataLen;
-} __attribute__ ((packed)) CMD_FLASH_WRITE_BLOCK_HEADER;
-
+} __attribute__((packed)) CMD_FLASH_WRITE_BLOCK_HEADER;
 
 typedef enum _EVENT_FRAME_PARSER_STATUS
 {
@@ -48,6 +48,7 @@ uint8_t cmdRetBuf[1024];
 
 uint8_t blockBuf[BLOCK_SIZE];
 
+extern uint32_t __SCORE_DATA_FLASH_SIZE__;
 extern Player mPlayer;
 
 void UART_HandleInt(UART_Type *pUART)
@@ -77,9 +78,9 @@ void uart_init()
 
 	UART_ConfigType sConfig;
 
-	sConfig.u32SysClkHz = BUS_CLK_HZ;		  //选择时钟源为总线时钟
-	sConfig.u32Baudrate = 115200; //设置波特率
-	UART_Init(UART0, &sConfig);				  //初始化串口 1
+	sConfig.u32SysClkHz = BUS_CLK_HZ; //选择时钟源为总线时钟
+	sConfig.u32Baudrate = 115200;	 //设置波特率
+	UART_Init(UART0, &sConfig);		  //初始化串口 1
 	UART_SetCallback(UART_HandleInt);
 	UART_EnableInterrupt(UART0, UART_RxBuffFullInt);
 	UART_EnableInterrupt(UART0, UART_RxOverrunInt);
@@ -108,6 +109,7 @@ int Protocol_Process(unsigned char *Buf)
 {
 	int retByteNum = 0;
 	uint8_t *rbf;
+	uint32_t fSize = (uint32_t)(&__SCORE_DATA_FLASH_SIZE__);
 
 	CMD_FLASH_WRITE_BLOCK_HEADER *cmdFlashWriteBlockHeader;
 
@@ -115,11 +117,11 @@ int Protocol_Process(unsigned char *Buf)
 	{
 	case CMD_FLASH_WRITE_BLOCK:
 		StopPlayScheduler(&mPlayer);
-		cmdFlashWriteBlockHeader = (CMD_FLASH_WRITE_BLOCK_HEADER*)&Buf[1];
-		uint32_t addr=cmdFlashWriteBlockHeader->blockIndex*BLOCK_SIZE+BOOT_ADDR;
+		cmdFlashWriteBlockHeader = (CMD_FLASH_WRITE_BLOCK_HEADER *)&Buf[1];
+		uint32_t addr = cmdFlashWriteBlockHeader->blockIndex * BLOCK_SIZE + BOOT_ADDR;
 		Flash_EraseSector(addr);
-		memcpy(blockBuf,&Buf[5],cmdFlashWriteBlockHeader->dataLen);
-		Flash_Program(addr,blockBuf, cmdFlashWriteBlockHeader->dataLen);
+		memcpy(blockBuf, &Buf[5], cmdFlashWriteBlockHeader->dataLen);
+		Flash_Program(addr, blockBuf, cmdFlashWriteBlockHeader->dataLen);
 
 		rbf = GetCmdDataPtr(cmdRetBuf);
 		rbf[0] = Buf[0];
@@ -127,6 +129,16 @@ int Protocol_Process(unsigned char *Buf)
 		rbf[2] = Buf[2];
 		rbf[3] = Buf[3];
 		rbf[4] = Buf[4];
+		retByteNum = 5;
+		break;
+
+	case CMD_FLASH_SZIE:
+		rbf = GetCmdDataPtr(cmdRetBuf);
+		rbf[0] = Buf[0];
+		rbf[1] = fSize & 0xFF;
+		rbf[2] = (fSize >> 8) & 0xFF;
+		rbf[3] = (fSize >> 16) & 0xFF;
+		rbf[4] = (fSize >> 24) & 0xFF;
 		retByteNum = 5;
 		break;
 

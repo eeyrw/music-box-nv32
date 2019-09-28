@@ -18,7 +18,7 @@ MEMORY
   flash_score_data (rx) : ORIGIN = 24K, LENGTH = 128K-24K
   ram (rwx) : ORIGIN =  0x1FFFF800, LENGTH = 8K
 }
-
+        __SCORE_DATA_FLASH_SIZE__ =  LENGTH(flash_score_data);
 
 ENTRY(Reset_Handler)
 
@@ -72,6 +72,7 @@ SECTIONS
 
         . = ALIGN(4);
         _etext = .;
+
     } >flash
 
 

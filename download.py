@@ -7,10 +7,26 @@ EVENT_FRAME = (0x6e,0x77)
 FILE = None
 
 
-
+def readFlashSize(port, baud):
+    ser = serial.Serial(port, baud, timeout=1.0)
+    ser.write([0x6e,0x77,0x01,0x00,0x04])
+    ser.flush()
+    ack = ser.read(9)
+    if len(ack)!=9:
+        print('Invalid ACK Len!')
+        return 0            
+    frameId,frameLen,cmd,flashDataSize=struct.unpack('<HHBI',ack)
+    if frameId!=0x776E:
+        print('Invalid Frame ID!')
+        return 0  
+    if cmd==0x04:
+        print('Block Index not matched.')
+        return flashDataSize
 
 def bootloader_exec(port, baud):
-    ser = serial.Serial(port, 115200, timeout=1.0)
+    flashSize=readFlashSize(port,baud)
+    print('Flash size: ',flashSize)
+    ser = serial.Serial(port, baud, timeout=1.0)
     data = open(FILE, 'rb')
     total = 0
     with data as f:
@@ -20,6 +36,9 @@ def bootloader_exec(port, baud):
         while chunk:
             frame = bytearray(EVENT_FRAME)
             total += len(chunk)
+            if total>flashSize:
+                print('Exceed flash size!!')
+                break
             print('Written: ',total)
             frameSize=len(chunk)+5
             frame.extend([frameSize&0xFF,frameSize>>8,flash_cmd,chunkIndex&0xff,chunkIndex>>8,len(chunk)&0xff,len(chunk)>>8])
