@@ -48,24 +48,6 @@ void ConfigPIT(void)
   PIT_SetCallback(PIT_CHANNEL0, PIT_Task); //设置通道1中断回调函数
 }
 
-void DeConfigPIT(void)
-{
-  PIT_ConfigType sPITConfig0;
-  PIT_ConfigType *pPIT_Config0 = &sPITConfig0;
-  /* PIT时钟源为总线时钟 */
-  /* 通道0装载值为 = (1000000-1),通道1装载值为 = (40-1) */
-
-  /* 配置通道0, 仅仅使能 */
-  pPIT_Config0->u32LoadValue = 1249;
-  pPIT_Config0->bFreeze = FALSE;   //定时器在调试模式下继续运行
-  pPIT_Config0->bModuleDis = TRUE; //使能定时器模块
-  pPIT_Config0->bInterruptEn = FALSE;
-  pPIT_Config0->bChainMode = FALSE;
-  pPIT_Config0->bETMerEn = FALSE; //定时器使能
-
-  PIT_Init(PIT_CHANNEL0, pPIT_Config0); //初始化PIT模块通道0
-}
-
 void ConfigADC(void)
 {
   ADC_ConfigType sADC_Config = {0};
