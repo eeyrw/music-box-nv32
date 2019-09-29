@@ -180,12 +180,12 @@ void SynthHwOnOff(SYNTH_HW_STATUS status)
 
 uint8_t GetRandom(void)
 {
-    uint8_t random=0;
-   for (int i=0; i<3; i++) 
-   { 
-      random |= ((ADC_PollRead(ADC, ADC_CHANNEL_AD5) & 0x07) << (i *3)); 
-   }
-   return random;
+  uint8_t random = 0;
+  for (int i = 0; i < 3; i++)
+  {
+    random |= ((ADC_PollRead(ADC, ADC_CHANNEL_AD5) & 0x07) << (i * 3));
+  }
+  return random;
 }
 
 int main(void)
@@ -212,8 +212,7 @@ int main(void)
   KeySetCallBack(USER_KEY_2, KeyNextCallBack);
   KeySetCallBack(USER_KEY_1, KeyPreviousCallBack);
   StartPlayScheduler(&mPlayer);
-  SchedulerSetIntialRandomSeed(&mPlayer,GetRandom());
-
+  SchedulerSetIntialRandomSeed(&mPlayer, GetRandom());
 
   while (1)
   {

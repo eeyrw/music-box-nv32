@@ -11,10 +11,13 @@
 
 #define EVENT_FRAME_FLAG 0x776E //ASCII:"wn"
 
-#define CMD_FLASH_INIT 0x01
-#define CMD_FLASH_WRITE_BLOCK 0x02
-#define CMD_FLASH_DEINIT 0x03
-#define CMD_FLASH_SZIE 0x04
+enum _CMD
+{
+	CMD_FLASH_WRITE_START = 0x01,
+	CMD_FLASH_WRITE_BLOCK,
+	CMD_FLASH_WRITE_END,
+	CMD_FLASH_SZIE
+};
 
 #define CMD_OFFEST 0x04
 
@@ -115,8 +118,21 @@ int Protocol_Process(unsigned char *Buf)
 
 	switch (Buf[0])
 	{
-	case CMD_FLASH_WRITE_BLOCK:
+	case CMD_FLASH_WRITE_START:
 		StopPlayScheduler(&mPlayer);
+		rbf = GetCmdDataPtr(cmdRetBuf);
+		rbf[0] = Buf[0];
+		retByteNum = 1;
+		break;
+
+	case CMD_FLASH_WRITE_END:
+		StartPlayScheduler(&mPlayer);
+		rbf = GetCmdDataPtr(cmdRetBuf);
+		rbf[0] = Buf[0];
+		retByteNum = 1;
+		break;
+
+	case CMD_FLASH_WRITE_BLOCK:
 		cmdFlashWriteBlockHeader = (CMD_FLASH_WRITE_BLOCK_HEADER *)&Buf[1];
 		uint32_t addr = cmdFlashWriteBlockHeader->blockIndex * BLOCK_SIZE + BOOT_ADDR;
 		Flash_EraseSector(addr);

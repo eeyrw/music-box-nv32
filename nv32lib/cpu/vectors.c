@@ -103,7 +103,7 @@ void default_isr(void)
 {
    #define VECTORNUM                     (*(volatile uint32_t*)(0xE000ED04))
 
-  printf("\n****default_isr entered on vector %d*****\r\n\n",VECTORNUM);
+  printf("\n****default_isr entered on vector %lu*****\r\n\n",VECTORNUM);
    return;
 }
 /******************************************************************************/
