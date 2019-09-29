@@ -133,6 +133,7 @@ void StartPlayScheduler(Player *player)
     player->scheduler.currentScoreIndex = -1;
     player->scheduler.maxScoreNum = (player->scheduler.scoreListHeader)->scoreCount;
     player->scheduler.schedulerMode = MODE_ORDER_PLAY;
+    player->scheduler.status = SCHEDULER_READY_TO_SWITCH;
 }
 
 void SchedulerSetIntialRandomSeed(Player *player, uint8_t randomSeed)
