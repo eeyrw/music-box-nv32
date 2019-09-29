@@ -93,13 +93,8 @@ void uart_init()
 
 void DownloadInit()
 {
-
-	/* execute bootloader */
 	uart_init();
-	/* Create and initialize ring buffer */
-
 	ring_buffer_init(&ring_buffer);
-
 	Flash_Init();
 }
 

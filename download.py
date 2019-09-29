@@ -3,30 +3,42 @@ from time import sleep
 
 BLOCK_SIZE = 512 # 128 for parts with >8k flash
 
-EVENT_FRAME = (0x6e,0x77)
-FILE = None
 
-
-def readFlashSize(port, baud):
-    ser = serial.Serial(port, baud, timeout=1.0)
-    ser.write([0x6e,0x77,0x01,0x00,0x04])
+def sendCmdPacket(ser,cmd,cmdData=[]):
+    frameLen=1+len(cmdData)
+    frameBytes=struct.pack('<HHBs',0x776e,frameLen,cmd,cmdData)
+    ser.write(frameBytes)
     ser.flush()
-    ack = ser.read(9)
-    if len(ack)!=9:
+
+def recvCmdReply(ser,cmd):
+    frameHeader = ser.read(4)
+    if len(frameHeader)!=4:
         print('Invalid ACK Len!')
-        return 0            
-    frameId,frameLen,cmd,flashDataSize=struct.unpack('<HHBI',ack)
-    if frameId!=0x776E:
-        print('Invalid Frame ID!')
-        return 0  
-    if cmd==0x04:
-        print('Block Index not matched.')
-        return flashDataSize
+        return []
+    else:
+        frameId,frameLen=struct.unpack('<HH',frameHeader) 
+        if frameId!=0x776E:
+            print('Invalid Frame ID!')
+            return []
+    frameData= ser.read(frameLen)
+    cmdReply,cmdReplyData=struct.unpack('<B%ds'%(frameLen-1),frameData)   
+    if cmdReply!=cmd:
+        return []
+    return cmdReplyData
+
+def readFlashSize(ser):
+    sendCmdPacket(ser,0x04)
+    replyData=recvCmdReply(ser,0x04)
+    if replyData!=[]:
+        return struct.unpack('<I',replyData)
+    else:
+        return 0
+
 
 def bootloader_exec(port, baud):
-    flashSize=readFlashSize(port,baud)
-    print('Flash size: ',flashSize)
     ser = serial.Serial(port, baud, timeout=1.0)
+    flashSize=readFlashSize(ser)
+    print('Flash size: ',flashSize)
     data = open(FILE, 'rb')
     total = 0
     with data as f:
