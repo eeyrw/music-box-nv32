@@ -8,6 +8,7 @@
 #include "ringbuffer.h"
 #include "DownloadScoreData.h"
 #include "Player.h"
+#include <string.h>
 
 #define EVENT_FRAME_FLAG 0x776E //ASCII:"wn"
 

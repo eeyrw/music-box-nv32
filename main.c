@@ -14,6 +14,7 @@
 #include "systick.h"
 #include "KeyScan.h"
 #include "DownloadScoreData.h"
+#include <stdlib.h>
 
 Player mPlayer;
 
@@ -195,6 +196,7 @@ int main(void)
   KeySetCallBack(USER_KEY_1, KeyPreviousCallBack);
   StartPlayScheduler(&mPlayer);
   SchedulerSetIntialRandomSeed(&mPlayer, GetRandom());
+  srand(GetRandom());
 
   while (1)
   {
