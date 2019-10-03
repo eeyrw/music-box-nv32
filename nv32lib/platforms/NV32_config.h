@@ -96,7 +96,7 @@
 /*! 定义所使用UART口的波特率 */
 #define UART_PRINT_BITRATE              115200      /*! UART波特率 */
 /*! 定义所使用的UART口 */
-#define TERM_PORT   UART0              						  /*!< 定义使用UART1口，开发板上默认使用UART1口 */
+#define TERM_PORT   UART1              						  /*!< 定义使用UART1口，开发板上默认使用UART1口 */
 
 /*! 板载LED */
 #define LED0_Init()            	GPIOB->PDDR |= (1<<25)  //初始化

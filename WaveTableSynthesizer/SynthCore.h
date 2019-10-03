@@ -18,32 +18,38 @@ typedef struct _SoundUnit
 	int32_t val;
 	int32_t sampleVal;
 	uint32_t envelopeLevel;
-}SoundUnit;
+} SoundUnit;
 
-
+typedef enum _SYNTH_HW_STATUS
+{
+	SYNTH_HW_OFF = 0,
+	SYNTH_HW_ON
+}SYNTH_HW_STATUS;
 
 typedef struct _Synthesizer
 {
-    SoundUnit SoundUnitList[POLY_NUM];
+	SoundUnit SoundUnitList[POLY_NUM];
 	int32_t mixOut;
-    uint32_t lastSoundUnit;
+	uint32_t lastSoundUnit;
 	uint32_t mainVolume;
 	uint32_t decayGenTick;
-}Synthesizer;
+	void (*hwSet)(SYNTH_HW_STATUS);
+} Synthesizer;
 
-
-extern void SynthInit(Synthesizer* synth);
-extern void SynthGenEnvelopeProcess(Synthesizer* synth);
+extern void SynthInit(Synthesizer *synth);
+extern void SynthGenEnvelopeProcess(Synthesizer *synth);
+extern void SynthOn(Synthesizer *synth);
+extern void SynthOff(Synthesizer *synth);
+void SynthRegisterHwChangeFunc(Synthesizer *synth, void (*hwSet)(SYNTH_HW_STATUS));
 
 #ifdef RUN_TEST
-extern void NoteOnC(Synthesizer* synth,uint8_t note);
-extern void SynthC(Synthesizer* synth);
-extern void GenDecayEnvlopeC(Synthesizer* synth);
+	extern void NoteOnC(Synthesizer *synth, uint8_t note);
+extern void SynthC(Synthesizer *synth);
+extern void GenDecayEnvlopeC(Synthesizer *synth);
 #endif
 
-extern void NoteOnAsm(Synthesizer* synth,uint8_t note);
-extern void GenDecayEnvlopeAsm(Synthesizer* synth);
-extern void SynthAsm(Synthesizer* synth);
-
+extern void NoteOnAsm(Synthesizer *synth, uint8_t note);
+extern void GenDecayEnvlopeAsm(Synthesizer *synth);
+extern void SynthAsm(Synthesizer *synth);
 
 #endif

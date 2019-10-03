@@ -9,9 +9,12 @@
 #include "gpio.h"
 #include "adc.h"
 #include "Player.h"
+#include "SynthCore.h"
 #include "NV32.h"
 #include "systick.h"
 #include "KeyScan.h"
+#include "DownloadScoreData.h"
+#include <stdlib.h>
 
 Player mPlayer;
 
@@ -44,24 +47,6 @@ void ConfigPIT(void)
   PIT_Init(PIT_CHANNEL0, pPIT_Config0); //初始化PIT模块通道0
 
   PIT_SetCallback(PIT_CHANNEL0, PIT_Task); //设置通道1中断回调函数
-}
-
-void DeConfigPIT(void)
-{
-  PIT_ConfigType sPITConfig0;
-  PIT_ConfigType *pPIT_Config0 = &sPITConfig0;
-  /* PIT时钟源为总线时钟 */
-  /* 通道0装载值为 = (1000000-1),通道1装载值为 = (40-1) */
-
-  /* 配置通道0, 仅仅使能 */
-  pPIT_Config0->u32LoadValue = 1249;
-  pPIT_Config0->bFreeze = FALSE;   //定时器在调试模式下继续运行
-  pPIT_Config0->bModuleDis = TRUE; //使能定时器模块
-  pPIT_Config0->bInterruptEn = FALSE;
-  pPIT_Config0->bChainMode = FALSE;
-  pPIT_Config0->bETMerEn = FALSE; //定时器使能
-
-  PIT_Init(PIT_CHANNEL0, pPIT_Config0); //初始化PIT模块通道0
 }
 
 void ConfigADC(void)
@@ -112,6 +97,7 @@ void ETM2Config(void)
 
   ETM_SetModValue(ETM2, 255);
 }
+
 uint32_t GlobalMills = 0;
 
 void SysTick_CallBack(void)
@@ -150,6 +136,41 @@ void VolumeProcess(Player *player)
   player->synthesizer.mainVolume = GetVolume();
 }
 
+void SynthHwOnOff(SYNTH_HW_STATUS status)
+{
+  static SYNTH_HW_STATUS lastStatus = SYNTH_HW_OFF;
+  DisableInterrupts;
+  if (status == SYNTH_HW_ON)
+  {
+    if (lastStatus != SYNTH_HW_ON)
+    {
+      lastStatus = SYNTH_HW_ON;
+      ConfigPIT();
+      ETM2Config();
+    }
+  }
+  else
+  {
+    if (lastStatus != SYNTH_HW_OFF)
+    {
+      lastStatus = SYNTH_HW_OFF;
+      PIT_DeInit();
+      ETM_DeInit(ETM2);
+    }
+  }
+  EnableInterrupts;
+}
+
+uint8_t GetRandom(void)
+{
+  uint8_t random = 0;
+  for (int i = 0; i < 3; i++)
+  {
+    random |= ((ADC_PollRead(ADC, ADC_CHANNEL_AD5) & 0x07) << (i * 3));
+  }
+  return random;
+}
+
 int main(void)
 {
   sysinit();
@@ -158,22 +179,24 @@ int main(void)
   GPIO_Init(GPIOA, GPIO_PTA7_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA0_MASK, GPIO_PinInput_InternalPullup);
   GPIO_Init(GPIOA, GPIO_PTA1_MASK, GPIO_PinInput_InternalPullup);
-
+  GPIO_Init(GPIOA, GPIO_PTA2_MASK, GPIO_PinInput);
   SIM_RemapETM0CH0Pin();
 
   (*((uint32_t *)0x4004900C)) = PORT_HDRVE_PTB4_MASK | PORT_HDRVE_PTB5_MASK | PORT_HDRVE_PTH1_MASK | PORT_HDRVE_PTH0_MASK;
 
   PlayerInit(&mPlayer);
+  SynthRegisterHwChangeFunc(&mPlayer.synthesizer, SynthHwOnOff);
   KeyScanInit();
 
-  ConfigPIT();
+  DownloadInit();
   ConfigADC();
   ETM0Config();
-  ETM2Config();
   SysTickConfig();
   KeySetCallBack(USER_KEY_2, KeyNextCallBack);
   KeySetCallBack(USER_KEY_1, KeyPreviousCallBack);
   StartPlayScheduler(&mPlayer);
+  SchedulerSetIntialRandomSeed(&mPlayer, GetRandom());
+  srand(GetRandom());
 
   while (1)
   {
@@ -183,5 +206,6 @@ int main(void)
     KeyRawInput(USER_KEY_2, GPIO_BitRead(GPIO_PTA0));
     KeyRawInput(USER_KEY_1, GPIO_BitRead(GPIO_PTA1));
     VisualIndicatorPrcoess(&mPlayer);
+    DownloadProcess();
   }
 }

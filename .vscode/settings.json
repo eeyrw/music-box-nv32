@@ -4,7 +4,16 @@
         "common.h": "c",
         "gpio.h": "c",
         "synthcore.h": "c",
-        "nv32.h": "c"
+        "nv32.h": "c",
+        "xhash": "c",
+        "xtree": "c",
+        "xutility": "c",
+        "algorithm": "c",
+        "list": "c",
+        "keyscan.h": "c",
+        "stdint.h": "c",
+        "flash.h": "c",
+        "rtc.h": "c"
     },
     "C_Cpp.default.cStandard": "c99",
     "C_Cpp.default.defines": ["NV32"],

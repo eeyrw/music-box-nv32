@@ -47,6 +47,13 @@ extern void RTC_Isr(void);
 
 extern void SysTick_Isr(void);
 
+
+#undef  VECTOR_028
+#define VECTOR_028  UART0_Isr
+
+extern void UART0_Isr(void);
+
+
 #endif  //__ISR_H
 
 /* End of "isr.h" */
