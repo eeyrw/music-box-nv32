@@ -129,11 +129,21 @@ void UpdateNextScoreTick(ScoreDecoder *decoder)
 
 void StartPlayScheduler(Player *player)
 {
-    player->scheduler.scoreListHeader = &ScoreDataList;
-    player->scheduler.currentScoreIndex = -1;
-    player->scheduler.maxScoreNum = (player->scheduler.scoreListHeader)->scoreCount;
-    player->scheduler.schedulerMode = MODE_ORDER_PLAY;
-    player->scheduler.status = SCHEDULER_READY_TO_SWITCH;
+    if (ScoreDataList.identifer[0] == 'S' &&
+        ScoreDataList.identifer[1] == 'C' &&
+        ScoreDataList.identifer[2] == 'R' &&
+        ScoreDataList.identifer[3] == 'E')
+    {
+        player->scheduler.scoreListHeader = &ScoreDataList;
+        player->scheduler.currentScoreIndex = -1;
+        player->scheduler.maxScoreNum = (player->scheduler.scoreListHeader)->scoreCount;
+        player->scheduler.schedulerMode = MODE_ORDER_PLAY;
+        player->scheduler.status = SCHEDULER_READY_TO_SWITCH;
+    }
+    else
+    {
+        player->scheduler.status = SCHEDULER_STOP;
+    }
 }
 
 void SchedulerSetIntialRandomSeed(Player *player, uint8_t randomSeed)
