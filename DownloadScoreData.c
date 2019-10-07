@@ -17,7 +17,9 @@ enum _CMD
 	CMD_FLASH_WRITE_START = 0x01,
 	CMD_FLASH_WRITE_BLOCK,
 	CMD_FLASH_WRITE_END,
-	CMD_FLASH_SZIE
+	CMD_FLASH_SIZE,
+	CMD_SCHEDULER_PREV,
+	CMD_SCHEDULER_NEXT,
 };
 
 #define CMD_OFFEST 0x04
@@ -144,7 +146,7 @@ int Protocol_Process(unsigned char *Buf)
 		retByteNum = 5;
 		break;
 
-	case CMD_FLASH_SZIE:
+	case CMD_FLASH_SIZE:
 		rbf = GetCmdDataPtr(cmdRetBuf);
 		rbf[0] = Buf[0];
 		rbf[1] = fSize & 0xFF;
