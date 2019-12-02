@@ -84,7 +84,7 @@ LD_FLAGS = $(MC_FLAGS) -g -specs=nano.specs -specs=nosys.specs -gdwarf-2 -mthumb
 all: $(OBJECTS) $(PROJECT_NAME).elf  $(PROJECT_NAME).hex $(PROJECT_NAME).bin
 	$(TOOLCHAIN)size $(PROJECT_NAME).elf
 
-%.o: %.c Makefile makefile_std_lib.mk $(LINK_SCRIPT)
+%.o: %.c Makefile makefile_std_lib.mk
 	@echo [CC] $(notdir $<)
 	@$(CC) -c $(CP_FLAGS) -I . $(INC_DIR) $< -o $@
 
@@ -96,7 +96,7 @@ scoreList.o: scoreList.raw
 	@echo [RAW] scoreList.raw
 	@$(CP) -I binary -O elf32-littlearm scoreList.raw scoreList.o
 
-%.elf: $(OBJECTS)
+%.elf: $(OBJECTS)  $(LINK_SCRIPT)
 	@echo [LD] $(PROJECT_NAME).elf
 	@$(CC) $(OBJECTS) $(LD_FLAGS) -o $@
 
