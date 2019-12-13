@@ -1,10 +1,40 @@
 #ifndef __SYNTH_CORE_H__
 #define __SYNTH_CORE_H__
 
-#include <stdint.h>
+
+
+#define pWavetablePos		0
+#define pWaveTableAddress 	4
+#define pWaveTableLen		8
+#define pWaveTableLoopLen	12
+#define pWaveTableAttackLen	16
+#define pEnvelopePos		20
+#define pIncrement			24
+#define pVal				28
+#define pSampleVal			32
+#define pEnvelopeLevel		36
+#define SoundUnitSize		40
+
+
+#define ENVELOP_LEN			256
+#define pMixOut 			(SoundUnitSize*POLY_NUM)
+#define pLastSoundUnit		(pMixOut+4)
+#define pMainVolume			(pLastSoundUnit+4)
+#define pDecayGenTick		(pMainVolume+4)
+#define SynthesizerSize 	(pDecayGenTick+4)
+
 
 #define POLY_NUM 20
 #define MAX_VOLUME_SHIFT_BIT 8
+#define DECAY_TIME_FACTOR 120
+
+#ifndef __ASSEMBLER__
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 typedef struct _SoundUnit
 {
@@ -51,5 +81,15 @@ extern void GenDecayEnvlopeC(Synthesizer *synth);
 extern void NoteOnAsm(Synthesizer *synth, uint8_t note);
 extern void GenDecayEnvlopeAsm(Synthesizer *synth);
 extern void SynthAsm(Synthesizer *synth);
+extern Synthesizer* GlobalSynthPtr;
+
+#ifdef __cplusplus
+} //end extern "C"
+#endif
+
+#else
+.extern EnvelopeTable
+.extern GlobalSynthPtr
+#endif
 
 #endif

@@ -1,8 +1,22 @@
 #ifndef __ScoreDecoder_H__
 #define __ScoreDecoder_H__
 
-#include <stdint.h>
 #include "SynthCore.h"
+
+#define pSynthesizer    0
+#define pScoreDecoder   (pSynthesizer+SynthesizerSize)
+#define pCurrentTick    0
+#define pLastScoreTick  (pCurrentTick+4)
+#define pStatus         (pLastScoreTick+4)
+
+#ifndef __ASSEMBLER__
+
+#include <stdint.h>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 enum DECODER_STATUS
 {
@@ -60,6 +74,7 @@ typedef struct _Player
 
 
 extern ScoreListHeader ScoreDataList;
+extern Player *GlobalPlayerPtr;
 
 extern void PlayerInit(Player *player);
 extern void Player32kProc(Player *player);
@@ -74,4 +89,13 @@ extern void PlaySchedulerPreviousScore(Player *player);
 extern void SchedulerSetIntialRandomSeed(Player *player,uint8_t randomSeed);
 extern void UpdateTick(ScoreDecoder *decoder);
 extern void UpdateNextScoreTick(ScoreDecoder *decoder);
+
+#ifdef __cplusplus
+} //end extern "C"
+#endif
+
+#else
+.extern GlobalPlayerPtr;
+#endif
+
 #endif

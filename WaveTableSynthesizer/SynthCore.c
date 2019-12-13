@@ -5,6 +5,12 @@
 #include "WaveTable_Celesta_C6.h"
 #include "EnvelopeTable.h"
 
+#ifdef RUN_TEST
+Synthesizer synthForC;
+#endif
+
+Synthesizer *GlobalSynthPtr;
+
 void SynthInit(Synthesizer *synth)
 {
 	SoundUnit *soundUnits = synth->SoundUnitList;
@@ -24,6 +30,7 @@ void SynthInit(Synthesizer *synth)
 	synth->lastSoundUnit = 0;
 	synth->mainVolume = 1 << (MAX_VOLUME_SHIFT_BIT - 1);
 	synth->decayGenTick = 0;
+	GlobalSynthPtr = synth;
 }
 
 void SynthRegisterHwChangeFunc(Synthesizer *synth, void (*hwSet)(SYNTH_HW_STATUS))
