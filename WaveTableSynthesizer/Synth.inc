@@ -5,8 +5,7 @@
 .syntax unified
 .section .text
 SynthAsm:
-push {r1-r2,r4-r7}
-pSoundUnit .req r1
+pSoundUnit .req r3
 loopIndex .req r4
 mixOut .req r2
 
@@ -76,4 +75,3 @@ ldr r5,=#PWM_OUT1
 strh mixOut,[r5]
 ldr r5,=#PWM_OUT2
 strh mixOut,[r5]
-pop {r1-r2,r4-r7}

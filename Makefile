@@ -89,7 +89,7 @@ all: $(OBJECTS) $(PROJECT_NAME).elf  $(PROJECT_NAME).hex $(PROJECT_NAME).bin
 	@echo [CC] $(notdir $<)
 	@$(CC) -c $(CP_FLAGS) -I . $(INC_DIR) $< -o $@
 
-%.o: %.s
+%.o: %.s $(ROOT_DIR)/WaveTableSynthesizer/Synth.inc $(ROOT_DIR)/WaveTableSynthesizer/UpdateTick.inc
 	@echo [AS] $(notdir $<)
 	@$(AS) -c $(AS_FLAGS) $< -o $@
 	

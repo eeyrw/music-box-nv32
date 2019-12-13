@@ -21,12 +21,13 @@
 #define pLastSoundUnit		(pMixOut+4)
 #define pMainVolume			(pLastSoundUnit+4)
 #define pDecayGenTick		(pMainVolume+4)
-#define SynthesizerSize 	(pDecayGenTick+4)
+#define pFuncHwSet			(pDecayGenTick+4)
+#define SynthesizerSize 	(pFuncHwSet+4)
 
 
 #define POLY_NUM 20
 #define MAX_VOLUME_SHIFT_BIT 8
-#define DECAY_TIME_FACTOR 120
+#define DECAY_TIME_FACTOR 230
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>

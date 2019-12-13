@@ -14,11 +14,11 @@ UpdateTick:
 	ptrScoreDecoder .req r1
 	ldr r5,=#pStatus
 	add r5,r5,ptrScoreDecoder
+	ldr r5,[r5]
 	cmp r5,#constSTATUS_DECODING
 	bne currentTickUpdateEnd
 	ldr r5,=#pCurrentTick
 	add r5,r5,ptrScoreDecoder
-	ldr r6,[r5]
 	ldr r6,[r5]
 	adds r6,r6,#1
 	str r6,[r5]
@@ -27,7 +27,8 @@ currentTickUpdateEnd:
 	ldr r5,=#pDecayGenTick
 	add r5,r5,ptrSoundUnit
 	ldr r6,[r5]
-	cmp r6,#DECAY_TIME_FACTOR
+	ldr r4,=#DECAY_TIME_FACTOR
+	cmp r6,r4
 	bhs updateDecayGenTickEnd  //bhs Branch if Same or Higher (Unsigned)
 	adds r6,r6,#1
 	str r6,[r5]
