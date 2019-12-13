@@ -8,6 +8,7 @@
 #define pCurrentTick    0
 #define pLastScoreTick  (pCurrentTick+4)
 #define pStatus         (pLastScoreTick+4)
+#define constSTATUS_DECODING 2
 
 #ifndef __ASSEMBLER__
 
@@ -22,7 +23,7 @@ enum DECODER_STATUS
 {
     STATUS_STOP = 0,
     STATUS_REDAY_TO_DECODE = 1,
-    STATUS_DECODING = 2
+    STATUS_DECODING = constSTATUS_DECODING
 };
 
 enum SCHEDULER_MODE

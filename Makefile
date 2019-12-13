@@ -50,7 +50,8 @@ SRC      += $(ROOT_DIR)/WaveTableSynthesizer/Player.c
 
 SRC      += $(ROOT_DIR)/Ring-Buffer/ringbuffer.c
 
-ASM_SRC  += $(ROOT_DIR)/WaveTableSynthesizer/Synth_m0.s
+ASM_SRC  += $(ROOT_DIR)/WaveTableSynthesizer/PeriodTimer.s
+ASM_SRC  += $(ROOT_DIR)/WaveTableSynthesizer/SynthCoreAsm.s
 # ASM_SRC  += $(ROOT_DIR)/ScoreList.s
 
 

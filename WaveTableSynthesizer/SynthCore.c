@@ -52,7 +52,7 @@ void SynthOff(Synthesizer *synth)
 
 void SynthGenEnvelopeProcess(Synthesizer *synth)
 {
-	if (synth->decayGenTick >= 150)
+	if (synth->decayGenTick >= DECAY_TIME_FACTOR)
 	{
 		GenDecayEnvlopeAsm(synth);
 		synth->decayGenTick = 0;

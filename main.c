@@ -15,6 +15,7 @@
 #include "KeyScan.h"
 #include "DownloadScoreData.h"
 #include <stdlib.h>
+#include "PeriodTimer.h"
 
 Player mPlayer;
 
@@ -22,12 +23,6 @@ int main(void);
 void TestInit(void);
 void TestSynth(void);
 
-void PIT_Task(void)
-{
-  //FGPIOB->PSOR = GPIO_PTB2_MASK;
-  Player32kProc(&mPlayer);
-  //FGPIOB->PCOR = GPIO_PTB2_MASK;
-}
 
 void ConfigPIT(void)
 {
