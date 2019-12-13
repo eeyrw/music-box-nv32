@@ -4,10 +4,10 @@
 
 .section .text 
 
-   // if (player->decoder.status == STATUS_DECODING)
-   //     player->decoder.currentTick++;
- // if (player->synthesizer.decayGenTick < 200)
-   //     player->synthesizer.decayGenTick += 1;
+// if (player->decoder.status == STATUS_DECODING)
+//     player->decoder.currentTick++;
+// if (player->synthesizer.decayGenTick < 200)
+//     player->synthesizer.decayGenTick += 1;
 
 UpdateTick:
 	ptrSoundUnit .req r0
