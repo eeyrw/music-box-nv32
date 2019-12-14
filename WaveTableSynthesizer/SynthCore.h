@@ -36,7 +36,7 @@
 
 #define POLY_NUM 24
 #define MAX_VOLUME_SHIFT_BIT 8
-#define DECAY_TIME_FACTOR 230
+#define DECAY_TIME_FACTOR 150
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>
