@@ -35,15 +35,15 @@ loopGenDecayEnvlope:
     lsls r6,r6,#8 @WaveTableAttackLen*=WaveTableAttackLen*256    
     cmp r5,r6
     blo conditionEnd @ blo Lower (unsigned < )
-    ldr r5,[pSoundUnitGenEnv,#pEnvelopePos]
+    ldrh r5,[pSoundUnitGenEnv,#pEnvelopePos]
     ldr r6,=#(ENVELOP_LEN-1)
     cmp r5,r6
     bhs conditionEnd @ bhs Higher or same (unsigned >= )
     ldr r6,=EnvelopeTable
     ldrb r6,[r6,r5]  @ Load envelope to r6
-    str r6,[pSoundUnitGenEnv,#pEnvelopeLevel]
+    strh r6,[pSoundUnitGenEnv,#pEnvelopeLevel]
     adds r5,r5,#1
-    str r5,[pSoundUnitGenEnv,#pEnvelopePos]
+    strh r5,[pSoundUnitGenEnv,#pEnvelopePos]
     conditionEnd:
 adds pSoundUnitGenEnv,pSoundUnitGenEnv,#SoundUnitSize    
 subs loopIndexGenEnv,loopIndexGenEnv,#1 @ set n = n-1
@@ -80,7 +80,7 @@ movs pSynth,r0
 
 ldr r5,=#pLastSoundUnit
 adds r5,r5,pSynth
-ldr r5,[r5]
+ldrh r5,[r5]
 
 movs r6,#SoundUnitSize
 muls r5,r5,r6
@@ -124,10 +124,10 @@ str r5,[pSynth,#pWaveTableAttackLen]
 c5_c6_branch_end:
 
 ldr r5,=#0
-str r5,[pSynth,#pEnvelopePos]
+strh r5,[pSynth,#pEnvelopePos]
 str r5,[pSynth,#pWavetablePos]
 ldr r5,=#255
-str r5,[pSynth,#pEnvelopeLevel]
+strh r5,[pSynth,#pEnvelopeLevel]
 @ cpsie i               @ PRIMASK=0 enable all interrupt
 movs r7,#0
 MSR PRIMASK,r7
@@ -135,7 +135,7 @@ movs pSynth,r0
 
 ldr r5,=#pLastSoundUnit
 adds r5,r5,pSynth
-ldr r5,[r5]
+ldrh r5,[r5]
 
 adds r5,r5,#1
 cmp r5,#POLY_NUM
@@ -145,7 +145,7 @@ updateLastSoundUnitEnd:
 
 ldr r6,=#pLastSoundUnit
 adds r6,r6,pSynth
-str r5,[r6]
+strh r5,[r6]
 
 pop {r1-r2,r4-r7,pc}
 .endfunc

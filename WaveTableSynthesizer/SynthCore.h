@@ -4,28 +4,37 @@
 
 
 #define pWavetablePos		0
-#define pWaveTableAddress 	4
-#define pWaveTableLen		8
-#define pWaveTableLoopLen	12
-#define pWaveTableAttackLen	16
-#define pEnvelopePos		20
-#define pIncrement			24
-#define pVal				28
-#define pSampleVal			32
-#define pEnvelopeLevel		36
-#define SoundUnitSize		40
+#define pWaveTableAddress 	(pWavetablePos+4)
+#define pWaveTableLen		(pWaveTableAddress+4)
+#define pWaveTableLoopLen	(pWaveTableLen+4)
+#define pWaveTableAttackLen	 (pWaveTableLoopLen+4)
+#define pIncrement			(pWaveTableAttackLen+4)
+#define pEnvelopePos		(pIncrement+4)
+#define pEnvelopeLevel		(pEnvelopePos+2)
+
+#ifdef RUN_TEST
+
+#define pVal				(pEnvelopeLevel+2)
+#define pSampleVal			(pVal+2)
+#define SoundUnitSize		(pSampleVal+2)
+
+#else
+
+#define SoundUnitSize		(pEnvelopeLevel+2)
+
+#endif
 
 
 #define ENVELOP_LEN			256
 #define pMixOut 			(SoundUnitSize*POLY_NUM)
 #define pLastSoundUnit		(pMixOut+4)
-#define pMainVolume			(pLastSoundUnit+4)
-#define pDecayGenTick		(pMainVolume+4)
+#define pMainVolume			(pLastSoundUnit+2)
+#define pDecayGenTick		(pMainVolume+2)
 #define pFuncHwSet			(pDecayGenTick+4)
 #define SynthesizerSize 	(pFuncHwSet+4)
 
 
-#define POLY_NUM 20
+#define POLY_NUM 24
 #define MAX_VOLUME_SHIFT_BIT 8
 #define DECAY_TIME_FACTOR 230
 
@@ -44,12 +53,14 @@ typedef struct _SoundUnit
 	uint32_t waveTableLen;
 	uint32_t waveTableLoopLen;
 	uint32_t waveTableAttackLen;
-	uint32_t envelopePos;
 	uint32_t increment;
-	int32_t val;
-	int32_t sampleVal;
-	uint32_t envelopeLevel;
-} SoundUnit;
+	uint16_t envelopePos;
+	uint16_t envelopeLevel;
+#ifdef RUN_TEST
+	int16_t val;
+	int16_t sampleVal;
+#endif
+}  __attribute__((packed)) SoundUnit;
 
 typedef enum _SYNTH_HW_STATUS
 {
@@ -61,11 +72,11 @@ typedef struct _Synthesizer
 {
 	SoundUnit SoundUnitList[POLY_NUM];
 	int32_t mixOut;
-	uint32_t lastSoundUnit;
-	uint32_t mainVolume;
+	uint16_t lastSoundUnit;
+	uint16_t mainVolume;
 	uint32_t decayGenTick;
 	void (*hwSet)(SYNTH_HW_STATUS);
-} Synthesizer;
+}  __attribute__((packed)) Synthesizer;
 
 extern void SynthInit(Synthesizer *synth);
 extern void SynthGenEnvelopeProcess(Synthesizer *synth);

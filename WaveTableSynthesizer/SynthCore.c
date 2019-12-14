@@ -20,7 +20,6 @@ void SynthInit(Synthesizer *synth)
 		soundUnits[i].wavetablePos = 0;
 		soundUnits[i].envelopeLevel = 0;
 		soundUnits[i].envelopePos = 0;
-		soundUnits[i].val = 0;
 		soundUnits[i].waveTableAddress = (uint32_t)WaveTable_Celesta_C5;
 		soundUnits[i].waveTableLen = WAVETABLE_CELESTA_C5_LEN;
 		soundUnits[i].waveTableLoopLen = WAVETABLE_CELESTA_C5_LOOP_LEN;

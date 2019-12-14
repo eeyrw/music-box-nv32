@@ -70,7 +70,7 @@ typedef struct _Player
     Synthesizer synthesizer;
     ScoreDecoder decoder;
     PlayScheduler scheduler;
-}Player;
+} Player;
 
 
 

@@ -14,7 +14,7 @@ movs mixOut,#0
 movs pSoundUnit,r0
 
 loopSynth:
-    ldr r7,[pSoundUnit,#pEnvelopeLevel]
+    ldrh r7,[pSoundUnit,#pEnvelopeLevel]
     cmp r7,#0
     beq loopSynthEnd
     ldr r5,[pSoundUnit,#pWaveTableAddress]
@@ -22,10 +22,10 @@ loopSynth:
     lsrs r6,r6,#8 @wavetablePos /= 256
     lsls r6,r6,#1 @wavetablePos *= 2
     ldrsh r6,[r5,r6] @ Load signed 16bit sample to r6
-    @ str r6,[pSoundUnit,#pSampleVal]
+    @ strsh r6,[pSoundUnit,#pSampleVal]
     muls r7,r6,r7 @sample*envelope/256
     @ asrs r7,r7,#8
-    @ str r7,[pSoundUnit,#pVal]
+    @ strsh r7,[pSoundUnit,#pVal]
     adds mixOut,r7,mixOut @mixOut+=sample*envelope/256
 
     ldr r6,[pSoundUnit,#pWavetablePos]
@@ -52,7 +52,7 @@ adds r5,r5,pSoundUnit
 str mixOut,[r5]
 
 @ 
-ldr r5,[r5,#(pMainVolume-pMixOut)]
+ldrh r5,[r5,#(pMainVolume-pMixOut)]
 asrs mixOut,mixOut,#8
 muls mixOut,r5,mixOut
 asrs mixOut,mixOut,#(MAX_VOLUME_SHIFT_BIT+8)
