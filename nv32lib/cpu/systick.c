@@ -77,9 +77,10 @@ void cal_systick_read_overhead(void)
 
 }
 
-
+extern unsigned int SEGGER_SYSVIEW_TickCnt;
 void SysTick_Isr(void)
 { 
+	SEGGER_SYSVIEW_TickCnt++;
 	//printf("input any character to start a new conversion!\n");
     if( SysTick_Callback[0] )
     {

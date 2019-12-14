@@ -16,6 +16,7 @@
 #include "DownloadScoreData.h"
 #include <stdlib.h>
 #include "PeriodTimer.h"
+#include "SEGGER_SYSVIEW.h"
 
 Player mPlayer;
 
@@ -134,6 +135,7 @@ void VolumeProcess(Player *player)
 void SynthHwOnOff(SYNTH_HW_STATUS status)
 {
   static SYNTH_HW_STATUS lastStatus = SYNTH_HW_OFF;
+  SEGGER_SYSVIEW_Print("Synth OnOff\n");
   DisableInterrupts;
   if (status == SYNTH_HW_ON)
   {
@@ -165,10 +167,13 @@ uint8_t GetRandom(void)
   }
   return random;
 }
-
+uint32_t SystemCoreClock;
 int main(void)
 {
   sysinit();
+  systick_init();
+  SystemCoreClock=40000000UL;
+  SEGGER_SYSVIEW_Conf();
   GPIO_Init(GPIOA, GPIO_PTB1_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA6_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA7_MASK, GPIO_PinInput);

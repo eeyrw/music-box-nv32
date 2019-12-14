@@ -36,6 +36,11 @@ SRC       =
 ASM_SRC   =
 
 
+SRC      += $(ROOT_DIR)/SEGGER/SEGGER_SYSVIEW.c
+SRC      += $(ROOT_DIR)/SEGGER/SEGGER_RTT.c
+SRC      += $(ROOT_DIR)/SEGGER/SEGGER_SYSVIEW_Config_NoOS.c
+SRC      += $(ROOT_DIR)/SEGGER/SEGGER_SYSTEMVIEW_CM0_TIMESTAMP.c
+
 SRC      += $(USER_DIR)/main.c
 SRC      += $(USER_DIR)/gcc-stdio-retarget.c
 SRC      += $(USER_DIR)/KeyScan.c
@@ -58,6 +63,7 @@ ASM_SRC  += $(ROOT_DIR)/WaveTableSynthesizer/SynthCoreAsm.s
 # user include
 INCLUDE_DIRS  = $(USER_DIR)
 INCLUDE_DIRS  += $(ROOT_DIR)/WaveTableSynthesizer
+INCLUDE_DIRS  += $(ROOT_DIR)/SEGGER
 INCLUDE_DIRS  += $(ROOT_DIR)/Ring-Buffer
 
 # include sub makefiles

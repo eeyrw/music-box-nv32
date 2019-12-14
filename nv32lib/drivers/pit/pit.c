@@ -10,6 +10,7 @@
 
 #include "common.h"
 #include "pit.h"
+#include "SEGGER_SYSVIEW.h"
 
 /*!
  * @brief 存放回调入口
@@ -152,13 +153,15 @@ void PIT_DeInit(void)
 *
 *****************************************************************************/
 void PIT_Ch0Isr(void) 
-{   
+{
+	//SEGGER_SYSVIEW_RecordEnterISR();
    PIT_ChannelClrFlags(0); //清除中断标志位
     
     if (PIT_Callback[0])
     {    
         PIT_Callback[0]();     
     }
+    //SEGGER_SYSVIEW_RecordExitISR();
 }
     
 /*****************************************************************************//*!

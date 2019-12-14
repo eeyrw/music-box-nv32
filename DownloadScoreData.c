@@ -49,8 +49,8 @@ EVENT_FRAME_PARSER_STATUS frameParseStatus = FRAME_PARSER_STATUS_IDLE;
 
 ring_buffer_t ring_buffer;
 
-uint8_t cmdBuf[1024];
-uint8_t cmdRetBuf[1024];
+uint8_t cmdBuf[512];
+uint8_t cmdRetBuf[128];
 
 uint8_t blockBuf[BLOCK_SIZE];
 

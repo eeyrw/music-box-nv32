@@ -25,7 +25,7 @@
 #define SynthesizerSize 	(pFuncHwSet+4)
 
 
-#define POLY_NUM 20
+#define POLY_NUM 5
 #define MAX_VOLUME_SHIFT_BIT 8
 #define DECAY_TIME_FACTOR 230
 
