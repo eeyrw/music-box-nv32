@@ -41,7 +41,7 @@ void ConfigPIT(void)
 
   PIT_Init(PIT_CHANNEL0, pPIT_Config0); //初始化PIT模块通道0
 
-  PIT_SetCallback(PIT_CHANNEL0, PIT_Task); //设置通道1中断回调函数
+  // PIT_SetCallback(PIT_CHANNEL0, PIT_Task); //设置通道1中断回调函数
 }
 
 void ConfigADC(void)

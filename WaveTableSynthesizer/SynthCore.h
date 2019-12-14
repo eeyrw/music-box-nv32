@@ -34,9 +34,9 @@
 #define SynthesizerSize 	(pFuncHwSet+4)
 
 
-#define POLY_NUM 24
+#define POLY_NUM 20
 #define MAX_VOLUME_SHIFT_BIT 8
-#define DECAY_TIME_FACTOR 150
+#define DECAY_TIME_FACTOR 120
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>
