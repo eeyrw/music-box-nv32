@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-uint32_t keyStatusList[KEY_NUM];
-uint32_t keyValueList[KEY_NUM];
+uint8_t keyStatusList[KEY_NUM];
+uint8_t keyValueList[KEY_NUM];
 void (*keyCallBackList[KEY_NUM])(uint32_t);
 
 void KeyRawInput(uint32_t keyIndex, uint32_t keyValue)

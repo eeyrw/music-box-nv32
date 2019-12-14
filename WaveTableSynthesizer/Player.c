@@ -4,6 +4,8 @@
 #include "SynthCore.h"
 #include "Player.h"
 
+Player *GlobalPlayerPtr;
+
 void Player32kProc(Player *player)
 {
     SynthAsm(&(player->synthesizer));
@@ -178,6 +180,7 @@ void StopDecode(Player *player)
 
 void PlayerInit(Player *player)
 {
+    GlobalPlayerPtr = player;
     player->decoder.status = STATUS_STOP;
     player->decoder.currentTick = 0;
     player->decoder.lastScoreTick = 0;

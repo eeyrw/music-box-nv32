@@ -5,6 +5,12 @@
 #include "WaveTable_Celesta_C6.h"
 #include "EnvelopeTable.h"
 
+#ifdef RUN_TEST
+Synthesizer synthForC;
+#endif
+
+Synthesizer *GlobalSynthPtr;
+
 void SynthInit(Synthesizer *synth)
 {
 	SoundUnit *soundUnits = synth->SoundUnitList;
@@ -14,7 +20,6 @@ void SynthInit(Synthesizer *synth)
 		soundUnits[i].wavetablePos = 0;
 		soundUnits[i].envelopeLevel = 0;
 		soundUnits[i].envelopePos = 0;
-		soundUnits[i].val = 0;
 		soundUnits[i].waveTableAddress = (uint32_t)WaveTable_Celesta_C5;
 		soundUnits[i].waveTableLen = WAVETABLE_CELESTA_C5_LEN;
 		soundUnits[i].waveTableLoopLen = WAVETABLE_CELESTA_C5_LOOP_LEN;
@@ -24,6 +29,7 @@ void SynthInit(Synthesizer *synth)
 	synth->lastSoundUnit = 0;
 	synth->mainVolume = 1 << (MAX_VOLUME_SHIFT_BIT - 1);
 	synth->decayGenTick = 0;
+	GlobalSynthPtr = synth;
 }
 
 void SynthRegisterHwChangeFunc(Synthesizer *synth, void (*hwSet)(SYNTH_HW_STATUS))
@@ -45,7 +51,7 @@ void SynthOff(Synthesizer *synth)
 
 void SynthGenEnvelopeProcess(Synthesizer *synth)
 {
-	if (synth->decayGenTick >= 150)
+	if (synth->decayGenTick >= DECAY_TIME_FACTOR)
 	{
 		GenDecayEnvlopeAsm(synth);
 		synth->decayGenTick = 0;

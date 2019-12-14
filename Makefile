@@ -50,7 +50,8 @@ SRC      += $(ROOT_DIR)/WaveTableSynthesizer/Player.c
 
 SRC      += $(ROOT_DIR)/Ring-Buffer/ringbuffer.c
 
-ASM_SRC  += $(ROOT_DIR)/WaveTableSynthesizer/Synth_m0.s
+ASM_SRC  += $(ROOT_DIR)/WaveTableSynthesizer/PeriodTimer.s
+ASM_SRC  += $(ROOT_DIR)/WaveTableSynthesizer/SynthCoreAsm.s
 # ASM_SRC  += $(ROOT_DIR)/ScoreList.s
 
 
@@ -88,7 +89,7 @@ all: $(OBJECTS) $(PROJECT_NAME).elf  $(PROJECT_NAME).hex $(PROJECT_NAME).bin
 	@echo [CC] $(notdir $<)
 	@$(CC) -c $(CP_FLAGS) -I . $(INC_DIR) $< -o $@
 
-%.o: %.s
+%.o: %.s $(ROOT_DIR)/WaveTableSynthesizer/Synth.inc $(ROOT_DIR)/WaveTableSynthesizer/UpdateTick.inc
 	@echo [AS] $(notdir $<)
 	@$(AS) -c $(AS_FLAGS) $< -o $@
 	

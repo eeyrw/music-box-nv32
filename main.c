@@ -15,6 +15,7 @@
 #include "KeyScan.h"
 #include "DownloadScoreData.h"
 #include <stdlib.h>
+#include "PeriodTimer.h"
 
 Player mPlayer;
 
@@ -22,12 +23,6 @@ int main(void);
 void TestInit(void);
 void TestSynth(void);
 
-void PIT_Task(void)
-{
-  //FGPIOB->PSOR = GPIO_PTB2_MASK;
-  Player32kProc(&mPlayer);
-  //FGPIOB->PCOR = GPIO_PTB2_MASK;
-}
 
 void ConfigPIT(void)
 {
@@ -46,7 +41,7 @@ void ConfigPIT(void)
 
   PIT_Init(PIT_CHANNEL0, pPIT_Config0); //初始化PIT模块通道0
 
-  PIT_SetCallback(PIT_CHANNEL0, PIT_Task); //设置通道1中断回调函数
+  // PIT_SetCallback(PIT_CHANNEL0, PIT_Task); //设置通道1中断回调函数
 }
 
 void ConfigADC(void)
