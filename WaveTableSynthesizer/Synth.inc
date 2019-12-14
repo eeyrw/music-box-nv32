@@ -22,10 +22,14 @@ loopSynth:
     lsrs r6,r6,#8 @wavetablePos /= 256
     lsls r6,r6,#1 @wavetablePos *= 2
     ldrsh r6,[r5,r6] @ Load signed 16bit sample to r6
-    @ strsh r6,[pSoundUnit,#pSampleVal]
+#ifdef RUN_TEST
+    strsh r6,[pSoundUnit,#pSampleVal]
+#endif
     muls r7,r6,r7 @sample*envelope/256
-    @ asrs r7,r7,#8
-    @ strsh r7,[pSoundUnit,#pVal]
+#ifdef RUN_TEST
+    asrs r7,r7,#8
+    strsh r7,[pSoundUnit,#pVal]
+#endif
     adds mixOut,r7,mixOut @mixOut+=sample*envelope/256
 
     ldr r6,[pSoundUnit,#pWavetablePos]
