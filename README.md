@@ -4,6 +4,11 @@ This is a wavetable synthesis based music-box.
 
 ![music-box-photo](./doc/music-box-photo.jpg)
 
+# Pre-compiled binary
+
+If you do not want to compile the firmware by yourself, you can download pre-compiled firmware:
+https://github.com/eeyrw/music-box-nv32/releases/tag/1.0.0
+
 # Build Firmware
 
 The firmware can be compiled with [arm-none-eabi-gcc](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads). Build system is based on Makefile. So run 
