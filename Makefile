@@ -70,6 +70,9 @@ DEFS	 = $(DDEFS) -DRUN_FROM_FLASH=1
 
 OBJECTS  = $(ASM_SRC:.s=.o) $(SRC:.c=.o) scoreList.o
 
+DEPS = $(SRC:.c=.d) $(ASM_SRC:.s=.d)
+
+
 # Define optimisation level here
 OPT = -Os
 
@@ -78,20 +81,33 @@ MC_FLAGS = -mcpu=$(MCU)
 AS_FLAGS = $(MC_FLAGS) -g -gdwarf-2 -mthumb  -Wa,-amhls=$(<:.s=.lst)
 CP_FLAGS = $(MC_FLAGS) $(OPT) -fdata-sections -ffunction-sections -g -gdwarf-2 -mthumb -fomit-frame-pointer -Wall -fverbose-asm -Wa,-ahlms=$(<:.c=.lst) $(DEFS)
 LD_FLAGS = $(MC_FLAGS) -g -specs=nano.specs -specs=nosys.specs -gdwarf-2 -mthumb -nostartfiles -Xlinker -T$(LINK_SCRIPT) -Wl,-Map=$(PROJECT_NAME).map,--cref,--no-warn-mismatch,--gc-sections
-
+DEPFLAGS = -MT $@ -MMD -MP -MF $*.d
 #
 # makefile rules
 #
+
+
+
 all: $(OBJECTS) $(PROJECT_NAME).elf  $(PROJECT_NAME).hex $(PROJECT_NAME).bin
 	$(TOOLCHAIN)size $(PROJECT_NAME).elf
 
+
+# Don't delete dependency files
+.PRECIOUS: %.d
+
+# Don't rebuild deps if cleaning
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPS)	
+endif
+
+
 %.o: %.c Makefile makefile_std_lib.mk
 	@echo [CC] $(notdir $<)
-	@$(CC) -c $(CP_FLAGS) -I . $(INC_DIR) $< -o $@
+	@$(CC) $(DEPFLAGS) -c $(CP_FLAGS) -I . $(INC_DIR) $< -o $@
 
-%.o: %.s $(ROOT_DIR)/WaveTableSynthesizer/Synth.inc $(ROOT_DIR)/WaveTableSynthesizer/UpdateTick.inc
+%.o: %.s
 	@echo [AS] $(notdir $<)
-	@$(AS) -c $(AS_FLAGS) $< -o $@
+	@$(AS) $(DEPFLAGS) -c $(AS_FLAGS) $< -o $@
 	
 scoreList.o: scoreList.raw
 	@echo [RAW] scoreList.raw
@@ -127,4 +143,5 @@ clean:
 	@-rm -rf $(ASM_SRC:.s=.lst)
 	@echo [RM] MAP
 	@-rm -rf $(PROJECT_NAME).map
-
+	@echo [RM] DEPENDENCY
+	@-rm -rf $(DEPS)
