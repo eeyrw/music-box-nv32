@@ -36,5 +36,6 @@
 
 *.lst
 *.map
+*.d
 
 .DS_Store
