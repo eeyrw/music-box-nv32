@@ -8,6 +8,7 @@
 #include "sim.h"
 #include "gpio.h"
 #include "adc.h"
+#include "pmc.h"
 #include "Player.h"
 #include "SynthCore.h"
 #include "NV32.h"
@@ -168,6 +169,7 @@ uint8_t GetRandom(void)
 
 int main(void)
 {
+  PMC_DisableLVD(PMC);
   sysinit();
   GPIO_Init(GPIOA, GPIO_PTB1_MASK, GPIO_PinInput);
   GPIO_Init(GPIOA, GPIO_PTA6_MASK, GPIO_PinInput);
